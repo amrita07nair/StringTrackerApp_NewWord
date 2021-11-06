@@ -44,7 +44,10 @@ class User(UserMixin, db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80))
+    username = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
+    instruments = db.relationship("Instruments", backref="user", lazy=True)
+    str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
 
     def __repr__(self):
         """
@@ -57,6 +60,36 @@ class User(UserMixin, db.Model):
         Getter for username attribute
         """
         return self.username
+
+
+class Instruments(db.Model):
+    # TODO: Should instr_id be a compound, like Type:Name, or just an int?
+    instr_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    strings = db.relationship("Strings", backref="user", lazy=True)
+    instr_name = db.Column(db.String(120), nullable=False)
+    instr_type = db.Column(db.String(120), nullable=False)
+
+
+class Strings(db.Model):
+    str_id = db.Column(db.Integer, primary_key=True)
+    instr_id = db.Column(
+        db.Integer, db.ForeignKey("instruments.instr_id"), nullable=False
+    )
+    str_name = db.Column(db.String(120), nullable=False)
+    str_cost = db.Column(db.Integer, nullable=False)
+
+
+class Stringlifespans(db.Model):
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    # TODO: contains a dictionary of k:v where key is a string name, and v is an int array of lifespans
+    """
+    Ex:
+        - {
+            "Guitar A - String B": [80, 90], 
+            "Guitar B - String C": [100, 120, 130],
+            }
+    """
 
 
 db.create_all()
