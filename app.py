@@ -143,12 +143,45 @@ def main():
     user is authenticated
     """
     if current_user.is_authenticated:
-        return flask.redirect(flask.url_for("bp.index"))
+        return flask.redirect(flask.url_for("home"))
     return flask.redirect(flask.url_for("login"))
+
+
+"""
+Code for String Squad's HTML:
+"""
+
+
+@app.route("/home")
+@login_required
+def home():
+    # TODO: add code here
+    return flask.render_template("home.html")
+
+
+@app.route("/database")
+@login_required
+def database():
+    # TODO: add code here
+    return flask.render_template("database.html")
+
+
+@app.route("/analytics")
+@login_required
+def analytics():
+    # TODO: add code here
+    return flask.render_template("analytics.html")
+
+
+@app.route("/settings")
+@login_required
+def settings():
+    # TODO: add code here
+    return flask.render_template("settings.html")
 
 
 if __name__ == "__main__":
     app.run(
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8204")),
+        port=int(os.getenv("PORT", "8206")),
     )
