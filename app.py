@@ -19,10 +19,6 @@ from flask_login import (
 )
 from flask_sqlalchemy import SQLAlchemy
 
-from genius import get_lyrics_link
-from spotify import get_access_token, get_song_data
-
-
 load_dotenv(find_dotenv())
 
 app = flask.Flask(__name__, static_folder="./build/static")
@@ -33,6 +29,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = b"I am a secret key"
 
 db = SQLAlchemy(app)
+
+# first connect Heroku Postgres to SQLAlchemy
+# https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
+uri = os.getenv("DATABASE_URL")
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+# rest of connection code using the connection string `uri`
 
 
 class User(UserMixin, db.Model):
@@ -54,22 +57,6 @@ class User(UserMixin, db.Model):
         Getter for username attribute
         """
         return self.username
-
-
-class Artist(db.Model):
-    """
-    Model for saved artists
-    """
-
-    id = db.Column(db.Integer, primary_key=True)
-    artist_id = db.Column(db.String(80), nullable=False)
-    username = db.Column(db.String(80), nullable=False)
-
-    def __repr__(self):
-        """
-        Determines what happens when we print an instance of the class
-        """
-        return f"<Artist {self.artist_id}>"
 
 
 db.create_all()
@@ -96,44 +83,7 @@ def index():
     Main page. Fetches song data and embeds it in the returned HTML. Returns
     dummy data if something goes wrong.
     """
-    artists = Artist.query.filter_by(username=current_user.username).all()
-    artist_ids = [a.artist_id for a in artists]
-    has_artists_saved = len(artist_ids) > 0
-    if has_artists_saved:
-        artist_id = random.choice(artist_ids)
-
-        # API calls
-        access_token = get_access_token()
-        (song_name, song_artist, song_image_url, preview_url) = get_song_data(
-            artist_id, access_token
-        )
-        genius_url = get_lyrics_link(song_name)
-
-    else:
-        (song_name, song_artist, song_image_url, preview_url, genius_url) = (
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
-
-    data = json.dumps(
-        {
-            "username": current_user.username,
-            "artist_ids": artist_ids,
-            "has_artists_saved": has_artists_saved,
-            "song_name": song_name,
-            "song_artist": song_artist,
-            "song_image_url": song_image_url,
-            "preview_url": preview_url,
-            "genius_url": genius_url,
-        }
-    )
-    return flask.render_template(
-        "index.html",
-        data=data,
-    )
+    return flask.render_template("index.html")
 
 
 app.register_blueprint(bp)
@@ -186,50 +136,6 @@ def login_post():
     return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
 
 
-@app.route("/save", methods=["POST"])
-def save():
-    """
-    Receives JSON data from App.js, filters out invalid artist IDs, and
-    updates the DB to contain all valid ones and nothing else.
-    """
-    artist_ids = flask.request.json.get("artist_ids")
-    valid_ids = set()
-    for artist_id in artist_ids:
-        try:
-            access_token = get_access_token()
-            get_song_data(artist_id, access_token)
-            valid_ids.add(artist_id)
-        except KeyError:
-            pass
-
-    username = current_user.username
-    update_db_ids_for_user(username, valid_ids)
-
-    response = {"artist_ids": [a for a in artist_ids if a in valid_ids]}
-    return flask.jsonify(response)
-
-
-def update_db_ids_for_user(username, valid_ids):
-    """
-    Updates the DB so that only entries for valid_ids exist in it.
-    @param username: the username of the current user
-    @param valid_ids: a set of artist IDs that the DB should update itself
-        to reflect
-    """
-    existing_ids = {
-        v.artist_id for v in Artist.query.filter_by(username=username).all()
-    }
-    new_ids = valid_ids - existing_ids
-    for new_id in new_ids:
-        db.session.add(Artist(artist_id=new_id, username=username))
-    if len(existing_ids - valid_ids) > 0:
-        for artist in Artist.query.filter_by(username=username).filter(
-            Artist.artist_id.notin_(valid_ids)
-        ):
-            db.session.delete(artist)
-    db.session.commit()
-
-
 @app.route("/")
 def main():
     """
@@ -244,5 +150,5 @@ def main():
 if __name__ == "__main__":
     app.run(
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8081")),
+        port=int(os.getenv("PORT", "8204")),
     )
