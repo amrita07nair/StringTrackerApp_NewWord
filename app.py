@@ -45,7 +45,6 @@ class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
     instruments = db.relationship("Instruments", backref="user", lazy=True)
     str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
 
@@ -65,6 +64,7 @@ class User(UserMixin, db.Model):
 class Instruments(db.Model):
     # TODO: Should instr_id be a compound, like Type:Name, or just an int?
     instr_id = db.Column(db.Integer, primary_key=True)
+    compound_name = db.Column(db.String(240), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     strings = db.relationship("Strings", backref="user", lazy=True)
     instr_name = db.Column(db.String(120), nullable=False)
@@ -81,8 +81,9 @@ class Strings(db.Model):
 
 
 class Stringlifespans(db.Model):
+    str_lifespan_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    # TODO: contains a dictionary of k:v where key is a string name, and v is an int array of lifespans
+    # string_lifespans is a JSON object stored as a string
     """
     Ex:
         - {
@@ -90,6 +91,7 @@ class Stringlifespans(db.Model):
             "Guitar B - String C": [100, 120, 130],
             }
     """
+    string_lifespans = db.Column(db.String(65535), nullable=False)
 
 
 db.create_all()
@@ -216,5 +218,5 @@ def settings():
 if __name__ == "__main__":
     app.run(
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8208")),
+        port=int(os.getenv("PORT", "8225")),
     )
