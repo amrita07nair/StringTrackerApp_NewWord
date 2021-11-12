@@ -188,10 +188,31 @@ def home():
     return flask.render_template("home.html")
 
 
-@app.route("/database")
+@app.route("/database", methods=["GET"])
 @login_required
 def database():
     # TODO: add code here
+    return flask.render_template("database.html")
+
+
+@app.route("/database", methods=["POST"])
+@login_required
+def database_post():
+    print("/database POST request received.")
+    instr_type = flask.request.form.get("instr_type")
+    instr_name = flask.request.form.get("instr_name")
+    compound_name = getCompoundName(instr_name, instr_type)
+    user_id = current_user.id
+    # TODO: Add in form validation
+    new_instr = Instruments(
+        compound_name=compound_name,
+        user_id=user_id,
+        instr_name=instr_name,
+        instr_type=instr_type,
+    )
+    print(f"Adding {new_instr} to DB.")
+    db.session.add(new_instr)
+    db.session.commit()
     return flask.render_template("database.html")
 
 
@@ -209,8 +230,11 @@ def settings():
     return flask.render_template("settings.html")
 
 
+def getCompoundName(instr_name, instr_type):
+    return f"{instr_name} - {instr_type}"
+
+
 if __name__ == "__main__":
     app.run(
-        host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8228")),
+        host=os.getenv("IP", "0.0.0.0"), port=int(os.getenv("PORT", "8229")), debug=True
     )
