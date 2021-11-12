@@ -44,7 +44,9 @@ class User(UserMixin, db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80))
+    username = db.Column(db.String(120), unique=True, nullable=False)
+    instruments = db.relationship("Instruments", backref="user", lazy=True)
+    str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
 
     def __repr__(self):
         """
@@ -57,6 +59,39 @@ class User(UserMixin, db.Model):
         Getter for username attribute
         """
         return self.username
+
+
+class Instruments(db.Model):
+    # TODO: Should instr_id be a compound, like Type:Name, or just an int?
+    instr_id = db.Column(db.Integer, primary_key=True)
+    compound_name = db.Column(db.String(240), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    strings = db.relationship("Strings", backref="user", lazy=True)
+    instr_name = db.Column(db.String(120), nullable=False)
+    instr_type = db.Column(db.String(120), nullable=False)
+
+
+class Strings(db.Model):
+    str_id = db.Column(db.Integer, primary_key=True)
+    instr_id = db.Column(
+        db.Integer, db.ForeignKey("instruments.instr_id"), nullable=False
+    )
+    str_name = db.Column(db.String(120), nullable=False)
+    str_cost = db.Column(db.Integer, nullable=False)
+
+
+class Stringlifespans(db.Model):
+    str_lifespan_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    # string_lifespans is a JSON object stored as a string
+    """
+    Ex:
+        - {
+            "Guitar A - String B": [80, 90], 
+            "Guitar B - String C": [100, 120, 130],
+            }
+    """
+    string_lifespans = db.Column(db.String(65535), nullable=False)
 
 
 db.create_all()
@@ -143,12 +178,45 @@ def main():
     user is authenticated
     """
     if current_user.is_authenticated:
-        return flask.redirect(flask.url_for("bp.index"))
+        return flask.redirect(flask.url_for("home"))
     return flask.redirect(flask.url_for("login"))
+
+
+"""
+Code for String Squad's HTML:
+"""
+
+
+@app.route("/home")
+@login_required
+def home():
+    # TODO: add code here
+    return flask.render_template("home.html")
+
+
+@app.route("/database")
+@login_required
+def database():
+    # TODO: add code here
+    return flask.render_template("database.html")
+
+
+@app.route("/analytics")
+@login_required
+def analytics():
+    # TODO: add code here
+    return flask.render_template("analytics.html")
+
+
+@app.route("/settings")
+@login_required
+def settings():
+    # TODO: add code here
+    return flask.render_template("settings.html")
 
 
 if __name__ == "__main__":
     app.run(
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8204")),
+        port=int(os.getenv("PORT", "8225")),
     )
