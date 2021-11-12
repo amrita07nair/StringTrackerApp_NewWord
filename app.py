@@ -78,6 +78,28 @@ class Strings(db.Model):
     )
     str_name = db.Column(db.String(120), nullable=False)
     str_cost = db.Column(db.Integer, nullable=False)
+    minutes_played = db.Column(db.Integer, nullable=False)
+
+
+"""
+class Sessions(db.Model):
+    session_id = db.Column(db.Integer, primary_key=True)
+    strings = db.relationship("Strings", backref="user", lazy=True)
+    # TODO: Is Integer big enough? Or should we do float?
+    duration_mins = db.Column(db.Integer, nullable=False)
+"""
+
+"""
+# users should be able to rate intonation, projection, and tone of the strings after each play session
+class Sentiments(db.Model):
+    sentiments_id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(
+        db.Integer, db.ForeignKey("sessions.session_id"), nullable=False
+    )
+    str_id = db.Column(
+        db.Integer, db.ForeignKey("strings.str_id"), nullable=False
+    )
+"""
 
 
 class Stringlifespans(db.Model):
