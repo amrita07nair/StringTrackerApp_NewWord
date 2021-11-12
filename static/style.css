@@ -14,9 +14,15 @@ hr {
     border: none;
 }
 
+form {
+  padding: 15px;
+  border: 1px solid #666;
+  background: #fff;
+  display: none;
+}
+
 .my-custom-row {
     background-color: bisque;
-    height: 500px; 
 }
 
 .login {
