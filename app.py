@@ -78,6 +78,28 @@ class Strings(db.Model):
     )
     str_name = db.Column(db.String(120), nullable=False)
     str_cost = db.Column(db.Integer, nullable=False)
+    minutes_played = db.Column(db.Integer, nullable=False)
+
+
+"""
+class Sessions(db.Model):
+    session_id = db.Column(db.Integer, primary_key=True)
+    strings = db.relationship("Strings", backref="user", lazy=True)
+    # TODO: Is Integer big enough? Or should we do float?
+    duration_mins = db.Column(db.Integer, nullable=False)
+"""
+
+"""
+# users should be able to rate intonation, projection, and tone of the strings after each play session
+class Sentiments(db.Model):
+    sentiments_id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(
+        db.Integer, db.ForeignKey("sessions.session_id"), nullable=False
+    )
+    str_id = db.Column(
+        db.Integer, db.ForeignKey("strings.str_id"), nullable=False
+    )
+"""
 
 
 class Stringlifespans(db.Model):
@@ -108,10 +130,7 @@ def load_user(user_name):
     return User.query.get(user_name)
 
 
-bp = flask.Blueprint("bp", __name__, template_folder="./build")
-
-
-@bp.route("/index")
+@app.route("/index")
 @login_required
 def index():
     """
@@ -119,9 +138,6 @@ def index():
     dummy data if something goes wrong.
     """
     return flask.render_template("index.html")
-
-
-app.register_blueprint(bp)
 
 
 @app.route("/signup")
@@ -166,7 +182,7 @@ def login_post():
     user = User.query.filter_by(username=username).first()
     if user:
         login_user(user)
-        return flask.redirect(flask.url_for("bp.index"))
+        return flask.redirect(flask.url_for("home"))
 
     return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
 
@@ -194,10 +210,32 @@ def home():
     return flask.render_template("home.html")
 
 
-@app.route("/database")
+@app.route("/database", methods=["GET"])
 @login_required
 def database():
     # TODO: add code here
+    return flask.render_template("database.html")
+
+
+@app.route("/database", methods=["POST"])
+@login_required
+def database_post():
+    print("/database POST request received.")
+    instr_type = flask.request.form.get("instr_type")
+    instr_name = flask.request.form.get("instr_name")
+    compound_name = getCompoundName(instr_name, instr_type)
+    user_id = current_user.id
+    # TODO: Add in form validation
+    new_instr = Instruments(
+        compound_name=compound_name,
+        user_id=user_id,
+        instr_name=instr_name,
+        instr_type=instr_type,
+    )
+    print(f"Adding {new_instr} to DB.")
+    db.session.add(new_instr)
+
+    db.session.commit()
     return flask.render_template("database.html")
 
 
@@ -215,8 +253,11 @@ def settings():
     return flask.render_template("settings.html")
 
 
+def getCompoundName(instr_name, instr_type):
+    return f"{instr_name} - {instr_type}"
+
+
 if __name__ == "__main__":
     app.run(
-        host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8225")),
+        host=os.getenv("IP", "0.0.0.0"), port=int(os.getenv("PORT", "8229")), debug=True
     )
