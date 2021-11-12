@@ -108,10 +108,7 @@ def load_user(user_name):
     return User.query.get(user_name)
 
 
-bp = flask.Blueprint("bp", __name__, template_folder="./build")
-
-
-@bp.route("/index")
+@app.route("/index")
 @login_required
 def index():
     """
@@ -119,9 +116,6 @@ def index():
     dummy data if something goes wrong.
     """
     return flask.render_template("index.html")
-
-
-app.register_blueprint(bp)
 
 
 @app.route("/signup")
@@ -166,7 +160,7 @@ def login_post():
     user = User.query.filter_by(username=username).first()
     if user:
         login_user(user)
-        return flask.redirect(flask.url_for("bp.index"))
+        return flask.redirect(flask.url_for("home"))
 
     return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
 
