@@ -235,7 +235,6 @@ def database_post():
     )
     print(f"Adding {new_instr} to DB.")
     db.session.add(new_instr)
-
     db.session.commit()
     return flask.render_template("database.html")
 
