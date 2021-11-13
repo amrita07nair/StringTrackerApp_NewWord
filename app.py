@@ -23,7 +23,7 @@ load_dotenv(find_dotenv())
 
 app = flask.Flask(__name__, static_folder="./build/static")
 # Point SQLAlchemy to your Heroku database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL1")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = b"I am a secret key"
@@ -32,11 +32,10 @@ db = SQLAlchemy(app)
 
 # first connect Heroku Postgres to SQLAlchemy
 # https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
-uri = os.getenv("DATABASE_URL")
+uri = os.getenv("DATABASE_URL1")
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 # rest of connection code using the connection string `uri`
-
 
 class User(UserMixin, db.Model):
     """
@@ -45,8 +44,8 @@ class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False)
-    instruments = db.relationship("Instruments", backref="user", lazy=True)
-    str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
+    #instruments = db.relationship("Instruments", backref="user", lazy=True)
+    #str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
 
     def __repr__(self):
         """
@@ -60,7 +59,7 @@ class User(UserMixin, db.Model):
         """
         return self.username
 
-
+"""
 class Instruments(db.Model):
     # TODO: Should instr_id be a compound, like Type:Name, or just an int?
     instr_id = db.Column(db.Integer, primary_key=True)
@@ -84,15 +83,15 @@ class Stringlifespans(db.Model):
     str_lifespan_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     # string_lifespans is a JSON object stored as a string
-    """
+    
     Ex:
         - {
             "Guitar A - String B": [80, 90], 
             "Guitar B - String C": [100, 120, 130],
             }
-    """
+    
     string_lifespans = db.Column(db.String(65535), nullable=False)
-
+"""
 
 db.create_all()
 login_manager = LoginManager()
@@ -211,6 +210,7 @@ def settings():
 
 if __name__ == "__main__":
     app.run(
+        #debug = True
         host=os.getenv("IP", "0.0.0.0"),
         port=int(os.getenv("PORT", "8228")),
     )
