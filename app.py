@@ -46,6 +46,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False)
     instruments = db.relationship("Instruments", backref="user", lazy=True)
+    current_instr_id = db.Column(db.Integer, nullable=True)
     str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
 
     def __repr__(self):
