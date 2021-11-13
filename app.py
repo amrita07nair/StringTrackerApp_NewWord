@@ -78,7 +78,6 @@ class Strings(db.Model):
     )
     str_name = db.Column(db.String(120), nullable=False)
     str_cost = db.Column(db.Integer, nullable=False)
-    minutes_played = db.Column(db.Integer, nullable=False)
 
 
 """
