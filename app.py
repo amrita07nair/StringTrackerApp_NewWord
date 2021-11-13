@@ -27,17 +27,9 @@ app = flask.Flask(__name__, static_folder="./build/static")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL1")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = "I am a secret key"
+app.secret_key = b"I am a secret key"
 
 db = SQLAlchemy(app)
-
-# first connect Heroku Postgres to SQLAlchemy
-# https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
-
-uri = os.getenv("DATABASE_URL1")
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
-# rest of connection code using the connection string `uri`
 
 
 class User(db.Model):
@@ -48,8 +40,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), unique =False, nullable=False)
-    instruments = db.relationship("Instruments", backref="user", lazy=True)
-    str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
+    #instruments = db.relationship("Instruments", backref="user", lazy=True)
+    #str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
 
     def __repr__(self):
         """
