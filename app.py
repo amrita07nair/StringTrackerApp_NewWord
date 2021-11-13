@@ -27,7 +27,7 @@ app = flask.Flask(__name__, static_folder="./build/static")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = b"I am a secret key"
+app.secret_key = "I am a secret key"
 
 db = SQLAlchemy(app)
 
@@ -40,7 +40,7 @@ if uri.startswith("postgres://"):
 # rest of connection code using the connection string `uri`
 """
 
-class User(UserMixin, db.Model):
+class User(db.Model):
     """
     Model for a) User rows in the DB and b) Flask Login object
     """
@@ -65,36 +65,7 @@ class User(UserMixin, db.Model):
     def get_password(self):
         return self.password
 
-"""
-class Instruments(db.Model):
-    # TODO: Should instr_id be a compound, like Type:Name, or just an int?
-    instr_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    strings = db.relationship("Strings", backref="user", lazy=True)
-    instr_name = db.Column(db.String(120), nullable=False)
-    instr_type = db.Column(db.String(120), nullable=False)
 
-
-class Strings(db.Model):
-    str_id = db.Column(db.Integer, primary_key=True)
-    instr_id = db.Column(
-        db.Integer, db.ForeignKey("instruments.instr_id"), nullable=False
-    )
-    str_name = db.Column(db.String(120), nullable=False)
-    str_cost = db.Column(db.Integer, nullable=False)
-
-
-class Stringlifespans(db.Model):
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    # TODO: contains a dictionary of k:v where key is a string name, and v is an int array of lifespans
-    Ex:
-        - {
-            "Guitar A - String B": [80, 90], 
-            "Guitar B - String C": [100, 120, 130],
-            }
-    """
-"""
-"""
 db.create_all()
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -102,18 +73,14 @@ login_manager.init_app(app)
 
 
 @login_manager.user_loader
-def load_user(user_name):
+def load_user(username, password):
     """
     Required by flask_login
     """
-    #return ((User.query.get(user_name)),(User.query.get(password)))
-    return User.query.get(user_name)
+    return User.query.get(username).first()
 
 
-bp = flask.Blueprint("bp", __name__, template_folder="./build")
 
-
-@bp.route("/index")
 @login_required
 def index():
     """
@@ -121,9 +88,6 @@ def index():
     dummy data if something goes wrong.
     """
     return flask.render_template("index.html")
-
-
-app.register_blueprint(bp)
 
 
 @app.route("/signup")
@@ -176,7 +140,7 @@ def login_post():
     if user:
         print(user)
         login_user(user)
-        return flask.redirect(flask.url_for("bp.index"))
+        return flask.redirect(flask.url_for("index"))
 
     return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
 
