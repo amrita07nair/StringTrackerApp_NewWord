@@ -142,6 +142,13 @@ def login_post():
     return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
 
 
+@app.route("/logout")
+@login_required
+def logout():
+    # TODO: add code here
+    logout_user()
+    return flask.redirect(flask.url_for("login"))
+
 @app.route("/")
 def main():
     """
