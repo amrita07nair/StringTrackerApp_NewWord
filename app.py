@@ -18,6 +18,7 @@ from flask_login import (
     LoginManager,
     UserMixin,
     login_required,
+    logout_user
 )
 from flask_sqlalchemy import SQLAlchemy
 
@@ -164,6 +165,11 @@ def login_post():
 
     return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
 
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return flask.redirect(flask.url_for("login"))
 
 @app.route("/")
 def main():
