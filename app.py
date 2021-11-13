@@ -59,7 +59,6 @@ class User(UserMixin, db.Model):
         """
         return self.username
 
-"""
 class Instruments(db.Model):
     # TODO: Should instr_id be a compound, like Type:Name, or just an int?
     instr_id = db.Column(db.Integer, primary_key=True)
@@ -83,15 +82,15 @@ class Stringlifespans(db.Model):
     str_lifespan_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     # string_lifespans is a JSON object stored as a string
-    
+    """
     Ex:
         - {
             "Guitar A - String B": [80, 90], 
             "Guitar B - String C": [100, 120, 130],
             }
     
-    string_lifespans = db.Column(db.String(65535), nullable=False)
-"""
+    string_lifespans = db.Column(db.String(65535), nullable=False
+    """
 
 db.create_all()
 login_manager = LoginManager()
