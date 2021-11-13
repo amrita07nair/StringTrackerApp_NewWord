@@ -16,7 +16,6 @@ from flask_login import (
     LoginManager,
     UserMixin,
     login_required,
-    logout_user
 )
 from flask_sqlalchemy import SQLAlchemy
 
@@ -31,31 +30,67 @@ app.secret_key = b"I am a secret key"
 
 db = SQLAlchemy(app)
 
+# first connect Heroku Postgres to SQLAlchemy
+# https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
+uri = os.getenv("DATABASE_URL1")
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+# rest of connection code using the connection string `uri`
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """
     Model for a) User rows in the DB and b) Flask Login object
     """
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120), unique =False, nullable=False)
-    #instruments = db.relationship("Instruments", backref="user", lazy=True)
-    #str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
+    instruments = db.relationship("Instruments", backref="user", lazy=True)
+    str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
 
     def __repr__(self):
         """
         Determines what happens when we print an instance of the class
         """
-        return f"<User {self.username, self.password}>"
+        return f"<User {self.username}>"
 
     def get_username(self):
         """
-        Getter for username attribute change check
+        Getter for username attribute
         """
         return self.username
-    def get_password(self):
-        return self.password
+
+class Instruments(db.Model):
+    # TODO: Should instr_id be a compound, like Type:Name, or just an int?
+    instr_id = db.Column(db.Integer, primary_key=True)
+    compound_name = db.Column(db.String(240), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    strings = db.relationship("Strings", backref="user", lazy=True)
+    instr_name = db.Column(db.String(120), nullable=False)
+    instr_type = db.Column(db.String(120), nullable=False)
+
+
+class Strings(db.Model):
+    str_id = db.Column(db.Integer, primary_key=True)
+    instr_id = db.Column(
+        db.Integer, db.ForeignKey("instruments.instr_id"), nullable=False
+    )
+    str_name = db.Column(db.String(120), nullable=False)
+    str_cost = db.Column(db.Integer, nullable=False)
+
+
+class Stringlifespans(db.Model):
+    str_lifespan_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    # string_lifespans is a JSON object stored as a string
+    """
+    Ex:
+        - {
+            "Guitar A - String B": [80, 90], 
+            "Guitar B - String C": [100, 120, 130],
+            }
+    
+    string_lifespans = db.Column(db.String(65535), nullable=False
+    """
 
 db.create_all()
 login_manager = LoginManager()
@@ -64,12 +99,14 @@ login_manager.init_app(app)
 
 
 @login_manager.user_loader
-def load_user(username, password):
+def load_user(user_name):
     """
     Required by flask_login
     """
-    return User.query.get(username).first()
+    return User.query.get(user_name)
 
+
+@app.route("/index")
 @login_required
 def index():
     """
@@ -93,17 +130,11 @@ def signup_post():
     Handler for signup form data
     """
     username = flask.request.form.get("username")
-    password = flask.request.form.get("password")
-    try:
-        user = User.query.filter_by(username=username,password=password).first()
-    except:
-        user = User(username=username,password=password)
-        db.session.add(user)
-        db.session.commit()
+    user = User.query.filter_by(username=username).first()
     if user:
         pass
     else:
-        user = User(username=username,password=password)
+        user = User(username=username)
         db.session.add(user)
         db.session.commit()
 
@@ -124,22 +155,13 @@ def login_post():
     Handler for login form data
     """
     username = flask.request.form.get("username")
-    password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
-        print(user)
         login_user(user)
-        return flask.redirect(flask.url_for("index"))
+        return flask.redirect(flask.url_for("home"))
 
     return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
 
-
-@app.route("/logout")
-@login_required
-def logout():
-    # TODO: add code here
-    logout_user()
-    return flask.redirect(flask.url_for("login"))
 
 @app.route("/")
 def main():
@@ -187,7 +209,7 @@ def settings():
 
 if __name__ == "__main__":
     app.run(
-        #debug=True
+        #debug = True
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8000")),
+        port=int(os.getenv("PORT", "8228")),
     )
