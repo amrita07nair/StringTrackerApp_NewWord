@@ -1,7 +1,6 @@
 """
 Flask app logic for P1M3
 """
-# TODO: testerchange to push
 # pylint: disable=no-member
 # pylint: disable=too-few-public-methods
 import os
@@ -17,6 +16,7 @@ from flask_login import (
     LoginManager,
     UserMixin,
     login_required,
+    logout_user
 )
 from flask_sqlalchemy import SQLAlchemy
 
@@ -33,11 +33,12 @@ db = SQLAlchemy(app)
 
 # first connect Heroku Postgres to SQLAlchemy
 # https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
+"""
 uri = os.getenv("DATABASE_URL")
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 # rest of connection code using the connection string `uri`
-
+"""
 
 class User(UserMixin, db.Model):
     """
@@ -46,23 +47,25 @@ class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
-    instruments = db.relationship("Instruments", backref="user", lazy=True)
-    str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
+    password = db.Column(db.String(120), unique =False, nullable=False)
+    #instruments = db.relationship("Instruments", backref="user", lazy=True)
+    #str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
 
     def __repr__(self):
         """
         Determines what happens when we print an instance of the class
         """
-        return f"<User {self.username}>"
+        return f"<User {self.username, self.password}>"
 
     def get_username(self):
         """
-        Getter for username attribute
+        Getter for username attribute change check
         """
         return self.username
+    def get_password(self):
+        return self.password
 
-
+"""
 class Instruments(db.Model):
     # TODO: Should instr_id be a compound, like Type:Name, or just an int?
     instr_id = db.Column(db.Integer, primary_key=True)
@@ -84,15 +87,14 @@ class Strings(db.Model):
 class Stringlifespans(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     # TODO: contains a dictionary of k:v where key is a string name, and v is an int array of lifespans
-    """
     Ex:
         - {
             "Guitar A - String B": [80, 90], 
             "Guitar B - String C": [100, 120, 130],
             }
     """
-
-
+"""
+"""
 db.create_all()
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -104,6 +106,7 @@ def load_user(user_name):
     """
     Required by flask_login
     """
+    #return ((User.query.get(user_name)),(User.query.get(password)))
     return User.query.get(user_name)
 
 
@@ -137,11 +140,17 @@ def signup_post():
     Handler for signup form data
     """
     username = flask.request.form.get("username")
-    user = User.query.filter_by(username=username).first()
+    password = flask.request.form.get("password")
+    try:
+        user = User.query.filter_by(username=username,password=password).first()
+    except:
+        user = User(username=username,password=password)
+        db.session.add(user)
+        db.session.commit()
     if user:
         pass
     else:
-        user = User(username=username)
+        user = User(username=username,password=password)
         db.session.add(user)
         db.session.commit()
 
@@ -162,8 +171,10 @@ def login_post():
     Handler for login form data
     """
     username = flask.request.form.get("username")
+    password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
+        print(user)
         login_user(user)
         return flask.redirect(flask.url_for("bp.index"))
 
@@ -216,6 +227,7 @@ def settings():
 
 if __name__ == "__main__":
     app.run(
-        host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8208")),
+        debug=True
+        #host=os.getenv("IP", "0.0.0.0"),
+        #port=int(os.getenv("PORT", "8000")),
     )
