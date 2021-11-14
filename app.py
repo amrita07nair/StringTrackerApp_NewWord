@@ -120,7 +120,7 @@ def signup_post():
         return flask.redirect(flask.url_for("login"))
 
 
-    return flask.redirect(flask.url_for("login"))
+    return flask.redirect(flask.url_for("signup"))
 
 
 @app.route("/login")
