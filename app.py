@@ -165,7 +165,7 @@ def login_post():
     password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
-        if user.get_password() == password:
+        if user.password == password:
             login_user(user)
             return flask.redirect(flask.url_for("home"))
         else:
