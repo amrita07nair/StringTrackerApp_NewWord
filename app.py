@@ -139,7 +139,7 @@ def signup_post():
     password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
-        return flask.jsonify({"status": 401, "reason": "Username is already in use. Try something different."})
+        pass
     else:
         user = User(username=username, password=password)
         db.session.add(user)
@@ -166,6 +166,8 @@ def login_post():
     user = User.query.filter_by(username=username).first()
     if user:
         if user.password == password:
+            print("HERE")
+            print(user.password)
             login_user(user)
             return flask.redirect(flask.url_for("home"))
         else:
