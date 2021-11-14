@@ -166,9 +166,9 @@ def login_post():
     user = User.query.filter_by(username=username).first()
     if user:
         if password == password:
-            #print("HERE")
-            #print(user.password)
-            #login_user(user)
+            print("HERE")
+            print(user.password)
+            login_user(user)
             return flask.redirect(flask.url_for("home"))
         else:
             return jsonify(

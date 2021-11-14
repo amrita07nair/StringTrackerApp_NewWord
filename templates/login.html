@@ -13,11 +13,21 @@
 <body>
     <h1>Log In</h1>
     <form method="POST" action="/login">
-        <input type="text" name="username" placeholder="Your Username">
-        <input type="text" name="password" placeholder="Your Password">
-        <input type="submit" value="Submit">
+        <div class="field">
+            <div class="control">
+                <input class="input is-large" type="password" name="password" placeholder="Your Password">
+            </div>
+        </div>
+        <div class="field">
+            <label class="checkbox">
+                <input type="checkbox">
+                Remember me
+            </label>
+        </div>
+        <button class="button is-block is-info is-large is-fullwidth">Login</button>
     </form>
-    <a href={{ url_for('signup') }}>Sign Up</a>
+    <a>href={{ url_for('signup') }}>Sign Up</a>
+
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
