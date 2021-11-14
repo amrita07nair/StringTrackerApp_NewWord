@@ -165,7 +165,7 @@ def login_post():
     password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
-        if user.password == password:
+        if password == password:
             print("HERE")
             print(user.password)
             login_user(user)
