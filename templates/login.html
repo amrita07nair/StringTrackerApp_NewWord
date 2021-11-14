@@ -13,22 +13,10 @@
 <body>
     <h1>Log In</h1>
     <form method="POST" action="/login">
-        <div class="field">
-            <div class="control">
-                <input class="input is-large" type="username" name="username" placeholder="Your Username" autofocus="">
-            </div>
-        </div>
-
-        <div class="field">
-            <div class="control">
-                <input class="input is-large" type="password" name="password" placeholder="Your Password">
-            </div>
-        </div>
-        
-        <button class="button is-block is-info is-large is-fullwidth">Login</button>
-    </form
-    <a href={{ url_for('signup') }}>New user? Click here to register.</a>
-
+        <input type="text" name="username" placeholder="Your Username">
+        <input type="submit" value="Submit">
+    </form>
+    <a href={{ url_for('signup') }}>Sign Up</a>
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
