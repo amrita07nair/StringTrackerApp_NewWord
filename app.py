@@ -210,3 +210,4 @@ if __name__ == "__main__":
         #debug = True
         host=os.getenv("IP", "0.0.0.0"), port=int(os.getenv("PORT", "8229")), debug=True
     )
+#up til here username and routing works. time to implement password from here.
