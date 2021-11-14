@@ -47,6 +47,7 @@ class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), unique=False, nullable=False)
     #instruments = db.relationship("Instruments", backref="user", lazy=True)
     #str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
 
@@ -54,13 +55,16 @@ class User(UserMixin, db.Model):
         """
         Determines what happens when we print an instance of the class
         """
-        return f"<User {self.username}>"
+        return f"<User {self.username, self.password}>"
 
     def get_username(self):
         """
         Getter for username attribute
         """
         return self.username
+    
+    def get_password(self):
+        return self.password
 
 class Instruments(db.Model):
     # TODO: Should instr_id be a compound, like Type:Name, or just an int?
@@ -133,11 +137,12 @@ def signup_post():
     Handler for signup form data
     """
     username = flask.request.form.get("username")
+    password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
-        pass
+        return flask.jsonify({"status": 400, "reason": "Username is already in use. Try something different."})
     else:
-        user = User(username=username)
+        user = User(username=username, password=password)
         db.session.add(user)
         db.session.commit()
 
@@ -158,10 +163,14 @@ def login_post():
     Handler for login form data
     """
     username = flask.request.form.get("username")
+    password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
-        login_user(user)
-        return flask.redirect(flask.url_for("home"))
+        if user.get_password() == password:
+            login_user(user)
+            return flask.redirect(flask.url_for("home"))
+        else:
+            return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
 
     return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
 
