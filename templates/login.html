@@ -15,18 +15,19 @@
     <form method="POST" action="/login">
         <div class="field">
             <div class="control">
+                <input class="input is-large" type="username" name="username" placeholder="Your Username" autofocus="">
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="control">
                 <input class="input is-large" type="password" name="password" placeholder="Your Password">
             </div>
         </div>
-        <div class="field">
-            <label class="checkbox">
-                <input type="checkbox">
-                Remember me
-            </label>
-        </div>
+        
         <button class="button is-block is-info is-large is-fullwidth">Login</button>
-    </form>
-    <a>href={{ url_for('signup') }}>Sign Up</a>
+    </form
+    <a href={{ url_for('signup') }}>Sign Up</a>
 
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
