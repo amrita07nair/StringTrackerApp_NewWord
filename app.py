@@ -61,7 +61,7 @@ class User(UserMixin, db.Model):
         """
         return self.username
     def get_password(self):
-        
+
         return self.password
 
 
@@ -117,6 +117,8 @@ def signup_post():
         user = User(username=username,password = "password")
         db.session.add(user)
         db.session.commit()
+        return flask.redirect(flask.url_for("login"))
+
 
     return flask.redirect(flask.url_for("login"))
 
