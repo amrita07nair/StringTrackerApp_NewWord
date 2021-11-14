@@ -103,18 +103,14 @@ def signup_post():
     Handler for signup form data
     """
     username = flask.request.form.get("username")
-    try:
-        user = User.query.filter_by(username=username).first()
-        if user:
-            return flask.redirect(flask.url_for("login"))
-    except:
+    user = User.query.filter_by(username=username).first()
+    if user:
+         return flask.redirect(flask.url_for("login"))
+    else:
         user = User(username=username)
         db.session.add(user)
         db.session.commit()
         return flask.redirect(flask.url_for("login"))
-
-
-    return flask.redirect(flask.url_for("signup"))
 
 
 @app.route("/login")
@@ -169,7 +165,7 @@ def database():
     # TODO: add code here
     return flask.render_template("database.html")
 
-
+"""
 @app.route("/database", methods=["POST"])
 @login_required
 def database_post():
@@ -189,7 +185,7 @@ def database_post():
     db.session.add(new_instr)
     db.session.commit()
     return flask.render_template("database.html")
-
+"""
 
 @app.route("/analytics")
 @login_required
@@ -211,5 +207,6 @@ def getCompoundName(instr_name, instr_type):
 
 if __name__ == "__main__":
     app.run(
-        host=os.getenv("IP", "0.0.0.0"), port=int(os.getenv("PORT", "8229")), debug=True
+        debug = True
+        #host=os.getenv("IP", "0.0.0.0"), port=int(os.getenv("PORT", "8229")), debug=True
     )
