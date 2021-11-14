@@ -28,12 +28,13 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL1")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = "I am a secret key"
-
+uri = os.getenv("DATABASE_URL1")
 db = SQLAlchemy(app)
 
 # first connect Heroku Postgres to SQLAlchemy
 # https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
-uri = os.getenv("DATABASE_URL1")
+
+
 
 
 
@@ -43,26 +44,19 @@ class User(UserMixin, db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120), unique=False, nullable=False)
-    #instruments = db.relationship("Instruments", backref="user", lazy=True)
-    #current_instr_id = db.Column(db.Integer, nullable=True)
-    #str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
+    username = db.Column(db.String(80))
 
     def __repr__(self):
         """
         Determines what happens when we print an instance of the class
         """
-        return f"<User {self.username, self.password}>"
+        return f"<User {self.username}>"
 
     def get_username(self):
         """
         Getter for username attribute
         """
         return self.username
-    def get_password(self):
-
-        return self.password
 
 
 db.create_all()
