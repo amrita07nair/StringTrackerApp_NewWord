@@ -136,12 +136,12 @@ def signup_post():
     Handler for signup form data
     """
     username = flask.request.form.get("username")
-    password = flask.request.form.get("password")
+    #password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
         pass
     else:
-        user = User(username=username, password=password)
+        user = User(username=username, password="password")
         db.session.add(user)
         db.session.commit()
 
@@ -162,25 +162,16 @@ def login_post():
     Handler for login form data
     """
     username = flask.request.form.get("username")
-    password = flask.request.form.get("password")
+    #password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
-        if password == password:
-            print("HERE")
-            print(user.password)
-            login_user(user)
-            return flask.redirect(flask.url_for("home"))
-        else:
-            return jsonify(
-                message="No incorrect password.",
-                category="error",
-                status=404
-                )
-    return jsonify(
-        message="Username does not exist. Please sign-up.",
-        category="error",
-        status=404
-        )
+        login_user(user)
+        return flask.redirect(flask.url_for("home"))
+        #if password == password:
+         #   print("HERE")
+          #  print(user.password)
+    return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
+
 @app.route("/logout")
 @login_required
 def logout():
