@@ -105,10 +105,11 @@ def signup_post():
     Handler for signup form data
     """
     username = flask.request.form.get("username")
-    user = User.query.filter_by(username=username).first()
-    if user:
-        pass
-    else:
+    try:
+        user = User.query.filter_by(username=username).first()
+        if user:
+            return flask.redirect(flask.url_for("login"))
+    except:
         user = User(username=username)
         db.session.add(user)
         db.session.commit()
