@@ -171,10 +171,16 @@ def login_post():
             login_user(user)
             return flask.redirect(flask.url_for("home"))
         else:
-            return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
-
-    return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
-
+            return jsonify(
+                message="No incorrect password.",
+                category="error",
+                status=404
+                )
+    return jsonify(
+        message="Username does not exist. Please sign-up.",
+        category="error",
+        status=404
+        )
 @app.route("/logout")
 @login_required
 def logout():
