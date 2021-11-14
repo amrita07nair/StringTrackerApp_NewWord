@@ -10,6 +10,7 @@ import random
 import flask
 
 from dotenv import load_dotenv, find_dotenv
+from flask_login import logout_user
 from flask_login import (
     login_user,
     current_user,
@@ -45,9 +46,10 @@ class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False)
-    instruments = db.relationship("Instruments", backref="user", lazy=True)
-    current_instr_id = db.Column(db.Integer, nullable=True)
-    str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
+    password = db.Column(db.String(120), unique=False, nullable=False)
+    #instruments = db.relationship("Instruments", backref="user", lazy=True)
+    #current_instr_id = db.Column(db.Integer, nullable=True)
+    #str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
 
     def __repr__(self):
         """
@@ -60,62 +62,6 @@ class User(UserMixin, db.Model):
         Getter for username attribute
         """
         return self.username
-
-
-class Instruments(db.Model):
-    # TODO: Should instr_id be a compound, like Type:Name, or just an int?
-    instr_id = db.Column(db.Integer, primary_key=True)
-    compound_name = db.Column(db.String(240), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    strings = db.relationship("Strings", backref="user", lazy=True)
-    instr_name = db.Column(db.String(120), nullable=False)
-    instr_type = db.Column(db.String(120), nullable=False)
-
-
-class Strings(db.Model):
-    str_id = db.Column(db.Integer, primary_key=True)
-    instr_id = db.Column(
-        db.Integer, db.ForeignKey("instruments.instr_id"), nullable=False
-    )
-    str_name = db.Column(db.String(120), nullable=False)
-    str_cost = db.Column(db.Integer, nullable=False)
-    minutes_played = db.Column(db.Integer, nullable=False)
-
-
-"""
-class Sessions(db.Model):
-    session_id = db.Column(db.Integer, primary_key=True)
-    strings = db.relationship("Strings", backref="user", lazy=True)
-    # TODO: Is Integer big enough? Or should we do float?
-    duration_mins = db.Column(db.Integer, nullable=False)
-"""
-
-"""
-# users should be able to rate intonation, projection, and tone of the strings after each play session
-class Sentiments(db.Model):
-    sentiments_id = db.Column(db.Integer, primary_key=True)
-    session_id = db.Column(
-        db.Integer, db.ForeignKey("sessions.session_id"), nullable=False
-    )
-    str_id = db.Column(
-        db.Integer, db.ForeignKey("strings.str_id"), nullable=False
-    )
-"""
-
-
-class Stringlifespans(db.Model):
-    str_lifespan_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    # string_lifespans is a JSON object stored as a string
-    """
-    Ex:
-        - {
-            "Guitar A - String B": [80, 90], 
-            "Guitar B - String C": [100, 120, 130],
-            }
-    """
-    string_lifespans = db.Column(db.String(65535), nullable=False)
-
 
 db.create_all()
 login_manager = LoginManager()
@@ -140,6 +86,12 @@ def index():
     """
     return flask.render_template("index.html")
 
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return flask.redirect(flask.url_for("login"))
 
 @app.route("/signup")
 def signup():
