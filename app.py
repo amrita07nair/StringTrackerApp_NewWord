@@ -108,7 +108,7 @@ def signup_post():
         if user:
             return flask.redirect(flask.url_for("login"))
     except:
-        user = User(username=username, password="password")
+        user = User(username=username)
         db.session.add(user)
         db.session.commit()
         return flask.redirect(flask.url_for("login"))
