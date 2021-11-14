@@ -114,7 +114,7 @@ def signup_post():
         if user:
             return flask.redirect(flask.url_for("login"))
     except:
-        user = User(username=username,password = "password")
+        user = User(username=username, password="password")
         db.session.add(user)
         db.session.commit()
         return flask.redirect(flask.url_for("login"))
@@ -137,12 +137,13 @@ def login_post():
     Handler for login form data
     """
     username = flask.request.form.get("username")
-    user = User.query.filter_by(username=username).first()
+    password = "password"
+    user = User.query.filter_by(username=username, password = "password").first()
     if user:
         login_user(user)
         return flask.redirect(flask.url_for("home"))
 
-    return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
+    return flask.render_template("login.html")
 
 
 @app.route("/")
