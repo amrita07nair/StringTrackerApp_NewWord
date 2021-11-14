@@ -34,9 +34,7 @@ db = SQLAlchemy(app)
 # first connect Heroku Postgres to SQLAlchemy
 # https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
 uri = os.getenv("DATABASE_URL1")
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
-# rest of connection code using the connection string `uri`
+
 
 
 class User(UserMixin, db.Model):
