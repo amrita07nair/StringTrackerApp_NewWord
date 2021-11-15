@@ -63,7 +63,6 @@ class User(UserMixin, db.Model):
 
         return self.password
 
-
 db.create_all()
 login_manager = LoginManager()
 login_manager.login_view = "login"
