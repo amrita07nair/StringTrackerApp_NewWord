@@ -45,14 +45,19 @@ class User(UserMixin, db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(80))
     username = db.Column(db.String(80))
     password  = db.Column(db.String(80))
+    
     def __repr__(self):
         """
         Determines what happens when we print an instance of the class
         """
-        return f"<User {self.username}, {self.password}>"
+        return f"<User {self.email}, {self.username}, {self.password}>"
 
+    def get_email(self):
+        return self.email
+    
     def get_username(self):
         """
         Getter for username attribute
@@ -62,7 +67,7 @@ class User(UserMixin, db.Model):
     def get_password(self):
 
         return self.password
-
+ 
 db.create_all()
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -106,13 +111,14 @@ def signup_post():
     """
     Handler for signup form data
     """
+    email = flask.request.form.get("email")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(username=username).first() 
     if user:
          return flask.redirect(flask.url_for("login"))
     else:
-        user = User(username=username, password = password)
+        user = User(email = email, username=username, password = password)
         db.session.add(user)
         db.session.commit()
         return flask.redirect(flask.url_for("login"))
@@ -131,9 +137,9 @@ def login_post():
     """
     Handler for login form data
     """
-    username = flask.request.form.get("username")
+    email = flask.request.form.get("email")
     password = flask.request.form.get("password")
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(email=email).first()
     if user:
         if user.password == password:
             login_user(user)
