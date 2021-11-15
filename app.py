@@ -107,7 +107,7 @@ def signup_post():
     Handler for signup form data
     """
     username = flask.request.form.get("username")
-    password = "password"
+    password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
          return flask.redirect(flask.url_for("login"))
@@ -132,11 +132,12 @@ def login_post():
     Handler for login form data
     """
     username = flask.request.form.get("username")
-    password = "password"
+    password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
-        login_user(user)
-        return flask.redirect(flask.url_for("home"))
+        if user.password == password:
+            login_user(user)
+            return flask.redirect(flask.url_for("home"))
 
     return flask.render_template("login.html")
 
