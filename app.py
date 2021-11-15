@@ -3,6 +3,7 @@ Flask app logic for P1M3
 """
 # pylint: disable=no-member
 # pylint: disable=too-few-public-methods
+from enum import unique
 import os
 import json
 import random
@@ -44,19 +45,23 @@ class User(UserMixin, db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80))
-
+    username = db.Column(db.String(80), unique = True, nullable = False)
+    password  = db.Column(db.String(80), unique = False, nullable = False)
     def __repr__(self):
         """
         Determines what happens when we print an instance of the class
         """
-        return f"<User {self.username}>"
+        return f"<User {self.username}, {self.password}>"
 
     def get_username(self):
         """
         Getter for username attribute
         """
         return self.username
+    
+    def get_password(self):
+
+        return self.password
 
 
 db.create_all()
@@ -103,11 +108,12 @@ def signup_post():
     Handler for signup form data
     """
     username = flask.request.form.get("username")
+    password = "password"
     user = User.query.filter_by(username=username).first()
     if user:
          return flask.redirect(flask.url_for("login"))
     else:
-        user = User(username=username)
+        user = User(username=username, password = password)
         db.session.add(user)
         db.session.commit()
         return flask.redirect(flask.url_for("login"))
@@ -127,7 +133,7 @@ def login_post():
     Handler for login form data
     """
     username = flask.request.form.get("username")
-    #password = "password"
+    password = "password"
     user = User.query.filter_by(username=username).first()
     if user:
         login_user(user)
@@ -212,3 +218,4 @@ if __name__ == "__main__":
     )
 #up til here username and routing works. time to implement password from here. HTML hasnt broken anything
 #adding password to db.columns and seeing if they breakes anything
+#added in db column for password and hardcoded filler password to test if db will accept new column
