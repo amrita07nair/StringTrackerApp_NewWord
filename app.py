@@ -45,8 +45,8 @@ class User(UserMixin, db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique = True, nullable = False)
-    password  = db.Column(db.String(80), unique = False, nullable = False)
+    username = db.Column(db.String(80))
+    password  = db.Column(db.String(80))
     def __repr__(self):
         """
         Determines what happens when we print an instance of the class
