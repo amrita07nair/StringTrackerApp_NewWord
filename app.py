@@ -219,3 +219,4 @@ if __name__ == "__main__":
 #up til here username and routing works. time to implement password from here. HTML hasnt broken anything
 #adding password to db.columns and seeing if they breakes anything
 #added in db column for password and hardcoded filler password to test if db will accept new column
+#basic password stuff working!!!!!!!! now polish and add flask.flask or jsonify :)
