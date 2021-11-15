@@ -109,7 +109,7 @@ def signup_post():
     """
     username = flask.request.form.get("username")
     password = "password"
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(username=username, password=password).first()
     if user:
          return flask.redirect(flask.url_for("login"))
     else:
@@ -134,7 +134,7 @@ def login_post():
     """
     username = flask.request.form.get("username")
     password = "password"
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(username=username, password = password).first()
     if user:
         login_user(user)
         return flask.redirect(flask.url_for("home"))
