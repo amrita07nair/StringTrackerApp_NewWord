@@ -3,6 +3,7 @@ Flask app logic for P1M3
 """
 # pylint: disable=no-member
 # pylint: disable=too-few-public-methods
+from enum import unique
 import os
 import json
 import random
@@ -10,6 +11,7 @@ import random
 import flask
 
 from dotenv import load_dotenv, find_dotenv
+from flask_login import logout_user
 from flask_login import (
     login_user,
     current_user,
@@ -23,19 +25,18 @@ load_dotenv(find_dotenv())
 
 app = flask.Flask(__name__, static_folder="./build/static")
 # Point SQLAlchemy to your Heroku database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL1")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = b"I am a secret key"
-
+app.secret_key = "I am a secret key"
+uri = os.getenv("DATABASE_URL1")
 db = SQLAlchemy(app)
 
 # first connect Heroku Postgres to SQLAlchemy
 # https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
-uri = os.getenv("DATABASE_URL")
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
-# rest of connection code using the connection string `uri`
+
+
+
 
 
 class User(UserMixin, db.Model):
@@ -44,78 +45,23 @@ class User(UserMixin, db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(120), unique=True, nullable=False)
-    instruments = db.relationship("Instruments", backref="user", lazy=True)
-    current_instr_id = db.Column(db.Integer, nullable=True)
-    str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
-
+    username = db.Column(db.String(80))
+    password  = db.Column(db.String(80))
     def __repr__(self):
         """
         Determines what happens when we print an instance of the class
         """
-        return f"<User {self.username}>"
+        return f"<User {self.username}, {self.password}>"
 
     def get_username(self):
         """
         Getter for username attribute
         """
         return self.username
+    
+    def get_password(self):
 
-
-class Instruments(db.Model):
-    # TODO: Should instr_id be a compound, like Type:Name, or just an int?
-    instr_id = db.Column(db.Integer, primary_key=True)
-    compound_name = db.Column(db.String(240), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    strings = db.relationship("Strings", backref="user", lazy=True)
-    instr_name = db.Column(db.String(120), nullable=False)
-    instr_type = db.Column(db.String(120), nullable=False)
-
-
-class Strings(db.Model):
-    str_id = db.Column(db.Integer, primary_key=True)
-    instr_id = db.Column(
-        db.Integer, db.ForeignKey("instruments.instr_id"), nullable=False
-    )
-    str_name = db.Column(db.String(120), nullable=False)
-    str_cost = db.Column(db.Integer, nullable=False)
-    minutes_played = db.Column(db.Integer, nullable=False)
-
-
-"""
-class Sessions(db.Model):
-    session_id = db.Column(db.Integer, primary_key=True)
-    strings = db.relationship("Strings", backref="user", lazy=True)
-    # TODO: Is Integer big enough? Or should we do float?
-    duration_mins = db.Column(db.Integer, nullable=False)
-"""
-
-"""
-# users should be able to rate intonation, projection, and tone of the strings after each play session
-class Sentiments(db.Model):
-    sentiments_id = db.Column(db.Integer, primary_key=True)
-    session_id = db.Column(
-        db.Integer, db.ForeignKey("sessions.session_id"), nullable=False
-    )
-    str_id = db.Column(
-        db.Integer, db.ForeignKey("strings.str_id"), nullable=False
-    )
-"""
-
-
-class Stringlifespans(db.Model):
-    str_lifespan_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    # string_lifespans is a JSON object stored as a string
-    """
-    Ex:
-        - {
-            "Guitar A - String B": [80, 90], 
-            "Guitar B - String C": [100, 120, 130],
-            }
-    """
-    string_lifespans = db.Column(db.String(65535), nullable=False)
-
+        return self.password
 
 db.create_all()
 login_manager = LoginManager()
@@ -141,6 +87,12 @@ def index():
     return flask.render_template("index.html")
 
 
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return flask.redirect(flask.url_for("login"))
+
 @app.route("/signup")
 def signup():
     """
@@ -155,15 +107,15 @@ def signup_post():
     Handler for signup form data
     """
     username = flask.request.form.get("username")
+    password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
-        pass
+         return flask.redirect(flask.url_for("login"))
     else:
-        user = User(username=username)
+        user = User(username=username, password = password)
         db.session.add(user)
         db.session.commit()
-
-    return flask.redirect(flask.url_for("login"))
+        return flask.redirect(flask.url_for("login"))
 
 
 @app.route("/login")
@@ -180,12 +132,14 @@ def login_post():
     Handler for login form data
     """
     username = flask.request.form.get("username")
+    password = flask.request.form.get("password")
     user = User.query.filter_by(username=username).first()
     if user:
-        login_user(user)
-        return flask.redirect(flask.url_for("home"))
+        if user.password == password:
+            login_user(user)
+            return flask.redirect(flask.url_for("home"))
 
-    return flask.jsonify({"status": 401, "reason": "Username or Password Error"})
+    return flask.render_template("login.html")
 
 
 @app.route("/")
@@ -217,7 +171,7 @@ def database():
     # TODO: add code here
     return flask.render_template("database.html")
 
-
+"""
 @app.route("/database", methods=["POST"])
 @login_required
 def database_post():
@@ -237,7 +191,7 @@ def database_post():
     db.session.add(new_instr)
     db.session.commit()
     return flask.render_template("database.html")
-
+"""
 
 @app.route("/analytics")
 @login_required
@@ -259,5 +213,10 @@ def getCompoundName(instr_name, instr_type):
 
 if __name__ == "__main__":
     app.run(
+        #debug = True
         host=os.getenv("IP", "0.0.0.0"), port=int(os.getenv("PORT", "8229")), debug=True
     )
+#up til here username and routing works. time to implement password from here. HTML hasnt broken anything
+#adding password to db.columns and seeing if they breakes anything
+#added in db column for password and hardcoded filler password to test if db will accept new column
+#basic password stuff working!!!!!!!! now polish and add flask.flask or jsonify :)
