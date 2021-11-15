@@ -226,3 +226,5 @@ if __name__ == "__main__":
 #adding password to db.columns and seeing if they breakes anything
 #added in db column for password and hardcoded filler password to test if db will accept new column
 #basic password stuff working!!!!!!!! now polish and add flask.flask or jsonify :)
+#appworks with email addition (works like how un ans password but with new 3rd field)
+# TODO: implement hash for password --> implement flask flash --> implement password restrictions(min 8 characters, needs at least 1 number and 1 special character) --> implement email restrictions (needs an @ and ends with gmail.com/yahoo.com/aol.com/hotmail.com) --> spruce up html with instructions and bootstrap
