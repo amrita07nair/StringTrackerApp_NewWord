@@ -20,6 +20,8 @@ from flask_login import (
     login_required,
 )
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 load_dotenv(find_dotenv())
 
@@ -53,8 +55,8 @@ class User(UserMixin, db.Model):
         """
         Determines what happens when we print an instance of the class
         """
-        return f"<User {self.email}, {self.username}, {self.password}>"
-
+        return f"<User {self.email}, {self.username}>"
+    
     def get_email(self):
         return self.email
     
@@ -67,6 +69,9 @@ class User(UserMixin, db.Model):
     def get_password(self):
 
         return self.password
+
+    def verify_password(self, password):
+        return check_password_hash(self.password, password)
  
 db.create_all()
 login_manager = LoginManager()
@@ -118,6 +123,7 @@ def signup_post():
     if user:
          return flask.redirect(flask.url_for("login"))
     else:
+        password = generate_password_hash(password)
         user = User(email = email, username=username, password = password)
         db.session.add(user)
         db.session.commit()
@@ -140,11 +146,9 @@ def login_post():
     email = flask.request.form.get("email")
     password = flask.request.form.get("password")
     user = User.query.filter_by(email=email).first()
-    if user:
-        if user.password == password:
-            login_user(user)
-            return flask.redirect(flask.url_for("home"))
-
+    if user and user.verify_password(password):
+        login_user(user)
+        return flask.redirect(flask.url_for("home"))
     return flask.render_template("login.html")
 
 
