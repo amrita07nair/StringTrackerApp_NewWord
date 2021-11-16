@@ -47,6 +47,24 @@
                         <input type="submit" value="Submit">
                     </form>
                 </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <button class="btn btn-primary" type="button" data-toggle="collapse"
+                            data-target="#collapseButton" aria-expanded="false" aria-controls="collapseButton">
+                            Add New Strings
+                        </button>
+                        <div class="collapse" id="collapseButton">
+                            <form method="POST" action="">
+                                <b>Name:</b> <input type="text" name="str_name"><br>
+                                <b>Cost:</b> <input type="text" name="str_cost">
+                                <br><br>
+                                <input type="submit" value="Submit">
+                            </form>
+
+                        </div>
+                    </div>
+
+                </div>
                 <br>
                 {{curr_instr}}
                 <form method="POST" action="/changeinstr">
@@ -63,6 +81,7 @@
     </div>
 
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
+
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>

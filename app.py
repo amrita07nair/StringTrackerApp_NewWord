@@ -301,6 +301,14 @@ def change_instr():
     return flask.render_template("database.html", curr_instr_name=curr_instr_name)
 
 
+def getInstrumentsStringsNames():
+    set_of_instr = current_user.instruments
+    instr_names = []
+    for instr in set_of_instr:
+        instr_names.append(instr.instr_name)
+    return instr_names
+
+
 if __name__ == "__main__":
     app.run(
         # debug = True
