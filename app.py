@@ -51,8 +51,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80))
     password  = db.Column(db.String(1000))
 
-    def __init__(self, id, email, username, password):
-        self.id = id
+    def __init__(self, email, username, password):
         self.email = email
         self.username = username
         self.password = generate_password_hash(password)
