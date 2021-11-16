@@ -50,6 +50,9 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(1000),unique=True, nullable=False)
     username = db.Column(db.String(1000),unique=True, nullable=False)
     password  = db.Column(db.String(1000))
+    instruments = db.relationship("Instruments", backref="user", lazy=True)
+    current_instr_id = db.Column(db.Integer, nullable=True)
+    str_lifespans = db.relationship("Stringlifespans", backref="user", lazy=True)
 
     def __init__(self, email, username, password):
         self.email = email
@@ -78,6 +81,40 @@ class User(UserMixin, db.Model):
 
     def verify_password(self, password):
         return check_password_hash(self.password, password)
+
+
+class Instruments(db.Model):
+    # TODO: Should instr_id be a compound, like Type:Name, or just an int?
+    instr_id = db.Column(db.Integer, primary_key=True)
+    compound_name = db.Column(db.String(240), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    strings = db.relationship("Strings", backref="user", lazy=True)
+    instr_name = db.Column(db.String(120), nullable=False)
+    instr_type = db.Column(db.String(120), nullable=False)
+
+
+class Strings(db.Model):
+    str_id = db.Column(db.Integer, primary_key=True)
+    instr_id = db.Column(
+        db.Integer, db.ForeignKey("instruments.instr_id"), nullable=False
+    )
+    str_name = db.Column(db.String(120), nullable=False)
+    str_cost = db.Column(db.Integer, nullable=False)
+
+
+class Stringlifespans(db.Model):
+    str_lifespan_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    # string_lifespans is a JSON object stored as a string
+    """
+    Ex:
+        - {
+            "Guitar A - String B": [80, 90], 
+            "Guitar B - String C": [100, 120, 130],
+            }
+    """
+    string_lifespans = db.Column(db.String(65535), nullable=False)
+
  
 db.create_all()
 login_manager = LoginManager()
