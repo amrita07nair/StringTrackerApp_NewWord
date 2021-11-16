@@ -217,11 +217,17 @@ def home():
 @app.route("/database", methods=["GET"])
 @login_required
 def database():
-    # TODO: add code here
-    return flask.render_template("database.html")
+    print("Proc'ing database GET:")
+    instr_names = getUserInstrumentNames()
+    instr_names_len = int(len(instr_names))
+
+    print("O_O")
+    print(type(instr_names_len))
+    return flask.render_template(
+        "database.html", instr_names=instr_names, instr_names_len=instr_names_len
+    )
 
 
-"""
 @app.route("/database", methods=["POST"])
 @login_required
 def database_post():
@@ -240,8 +246,13 @@ def database_post():
     print(f"Adding {new_instr} to DB.")
     db.session.add(new_instr)
     db.session.commit()
-    return flask.render_template("database.html")
-"""
+    # TODO: Get updated stuff, move to DB
+    instr_names = getUserInstrumentNames()
+    instr_names_len = int(len(instr_names))
+
+    return flask.render_template(
+        "database.html", instr_names=instr_names, instr_names_len=instr_names_len
+    )
 
 
 @app.route("/analytics")
@@ -260,6 +271,34 @@ def settings():
 
 def getCompoundName(instr_name, instr_type):
     return f"{instr_name} - {instr_type}"
+
+
+def getUserInstrumentNames():
+    set_of_instr = current_user.instruments
+    instr_names = []
+    for instr in set_of_instr:
+        instr_names.append(instr.instr_name)
+    return instr_names
+
+
+@app.route("/changeinstr", methods=["POST"])
+@login_required
+def change_instr():
+    print("/changeinstr received POST request.")
+    curr_instr_name = flask.request.form.get("instruments")
+
+    # Get instrument ID using user ID and instrument name
+    curr_instr_db_obj = (
+        Instruments.query.filter_by(user_id=current_user.id)
+        .filter_by(instr_name=curr_instr_name)
+        .first()
+    )
+    curr_instr_id = curr_instr_db_obj.instr_id
+
+    # set this instr_id to the user's current_instr_id
+    current_user.current_instr_id = curr_instr_id
+    print(f"Current user instrument changed to {current_user.current_instr_id}")
+    return flask.render_template("database.html", curr_instr_name=curr_instr_name)
 
 
 if __name__ == "__main__":

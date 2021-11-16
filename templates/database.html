@@ -47,13 +47,14 @@
                         <input type="submit" value="Submit">
                     </form>
                 </div>
+                <br>
+                {{curr_instr}}
                 <form method="POST" action="/changeinstr">
                     <label for="instruments">Change Instruments:</label>
                     <select id="instruments" name="instruments">
-                        <option value="volvo">Volvo</option>
-                        <option value="saab">Saab</option>
-                        <option value="fiat">Fiat</option>
-                        <option value="audi">Audi</option>
+                        {% for i in range(0, instr_names_len) %}
+                        <option value="{{instr_names[i]}}">{{instr_names[i]}}</option>
+                        {% endfor %}
                     </select>
                     <input type="submit">
                 </form>
