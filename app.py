@@ -50,6 +50,13 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(80))
     username = db.Column(db.String(80))
     password  = db.Column(db.String(1000))
+
+    def __init__(self, id, email, username, password):
+        self.id = id
+        self.email = email
+        self.username = username
+        self.password = generate_password_hash(password)
+        
     
     def __repr__(self):
         """
@@ -123,7 +130,6 @@ def signup_post():
     if user:
          return flask.redirect(flask.url_for("login"))
     else:
-        password = generate_password_hash(password)
         user = User(email = email, username=username, password = password)
         db.session.add(user)
         db.session.commit()
