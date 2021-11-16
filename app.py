@@ -47,8 +47,8 @@ class User(UserMixin, db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(1000))
-    username = db.Column(db.String(1000))
+    email = db.Column(db.String(1000),unique=True, nullable=False)
+    username = db.Column(db.String(1000),unique=True, nullable=False)
     password  = db.Column(db.String(1000))
 
     def __init__(self, email, username, password):
@@ -229,7 +229,7 @@ def getCompoundName(instr_name, instr_type):
 if __name__ == "__main__":
     app.run(
         #debug = True
-        host=os.getenv("IP", "0.0.0.0"), port=int(os.getenv("PORT", "8229")), debug=True
+        host=os.getenv("IP", "0.0.0.0"), port=int(os.getenv("PORT", "8000")), debug=True
     )
 #up til here username and routing works. time to implement password from here. HTML hasnt broken anything
 #adding password to db.columns and seeing if they breakes anything
