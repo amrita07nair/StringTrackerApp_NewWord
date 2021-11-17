@@ -223,8 +223,21 @@ def database():
 
     print("O_O")
     print(type(instr_names_len))
+
+    try:
+        curr_instr_name = (
+            Instruments.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .instr_name
+        )
+    except AttributeError:
+        curr_instr_name = ""
+
     return flask.render_template(
-        "database.html", instr_names=instr_names, instr_names_len=instr_names_len
+        "database.html",
+        curr_instr_name=curr_instr_name,
+        instr_names=instr_names,
+        instr_names_len=instr_names_len,
     )
 
 
@@ -246,12 +259,36 @@ def database_post():
     print(f"Adding {new_instr} to DB.")
     db.session.add(new_instr)
     db.session.commit()
-    # TODO: Get updated stuff, move to DB
+
+    set_of_instr = current_user.instruments
+
+    added_instr_id = 0
+    for instr in set_of_instr:
+        if instr.instr_name == instr_name:
+            added_instr_id = instr.instr_id
+
+    current_user.current_instr_id = added_instr_id
+
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
+    instr_names = getUserInstrumentNames()
+    instr_names_len = int(len(instr_names))
+
+    try:
+        curr_instr_name = (
+            Instruments.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .instr_name
+        )
+    except AttributeError:
+        curr_instr_name = ""
+
     return flask.render_template(
-        "database.html", instr_names=instr_names, instr_names_len=instr_names_len
+        "database.html",
+        instr_names=instr_names,
+        instr_names_len=instr_names_len,
+        curr_instr_name=curr_instr_name,
     )
 
 
@@ -281,32 +318,38 @@ def getUserInstrumentNames():
     return instr_names
 
 
+# Get instrument ID using user ID and instrument name
+def getCurrentInstrument(curr_instr_name):
+    curr_instr_db_obj = (
+        Instruments.query.filter_by(user_id=current_user.id)
+        .filter_by(instr_name=curr_instr_name)
+        .first()
+    )
+    return curr_instr_db_obj
+
+
 @app.route("/changeinstr", methods=["POST"])
 @login_required
 def change_instr():
     print("/changeinstr received POST request.")
     curr_instr_name = flask.request.form.get("instruments")
 
-    # Get instrument ID using user ID and instrument name
-    curr_instr_db_obj = (
-        Instruments.query.filter_by(user_id=current_user.id)
-        .filter_by(instr_name=curr_instr_name)
-        .first()
-    )
+    # get the current instrument's ID
+    curr_instr_db_obj = getCurrentInstrument(curr_instr_name)
     curr_instr_id = curr_instr_db_obj.instr_id
 
-    # set this instr_id to the user's current_instr_id
+    # attach this instr_id to the user's current_instr_id
     current_user.current_instr_id = curr_instr_id
+    instr_names = getUserInstrumentNames()
+    instr_names_len = int(len(instr_names))
+
     print(f"Current user instrument changed to {current_user.current_instr_id}")
-    return flask.render_template("database.html", curr_instr_name=curr_instr_name)
-
-
-def getInstrumentsStringsNames():
-    set_of_instr = current_user.instruments
-    instr_names = []
-    for instr in set_of_instr:
-        instr_names.append(instr.instr_name)
-    return instr_names
+    return flask.render_template(
+        "database.html",
+        curr_instr_name=curr_instr_name,
+        instr_names=instr_names,
+        instr_names_len=instr_names_len,
+    )
 
 
 if __name__ == "__main__":
