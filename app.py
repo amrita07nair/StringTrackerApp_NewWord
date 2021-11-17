@@ -126,25 +126,17 @@ def load_user(user_name):
     return get_user_by_username(user_name)
 
 
-@app.route("/index")
-@login_required
-def index():
-    """
-    Main page. Fetches song data and embeds it in the returned HTML. Returns
-    dummy data if something goes wrong.
-    """
-    return flask.render_template("index.html")
-
-
 @app.route("/logout")
 @login_required
 def logout():
+    print("Logging out user")
     logout_user()
     return flask.redirect(flask.url_for("login"))
 
 
 @app.route("/signup")
 def signup():
+    print("proc'ing signup()")
     """
     Signup endpoint for GET requests
     """
@@ -153,6 +145,7 @@ def signup():
 
 @app.route("/signup", methods=["POST"])
 def signup_post():
+    print("proc'ing signup_post()")
     """
     Handler for signup form data
     """
@@ -179,6 +172,7 @@ def login():
     """
     Login endpoint for GET requests
     """
+    print("proc'ing login()")
     return flask.render_template("login.html")
 
 
@@ -187,12 +181,15 @@ def login_post():
     """
     Handler for login form data
     """
+    print("proc'ing login_post()")
     email = flask.request.form.get("email")
     password = flask.request.form.get("password")
     user = get_user_by_email(email)
     if user_login_success(user, password):
+        print("user_login_success")
         login_user(user)
-        return flask.redirect(flask.url_for("home"))
+        print(f"current user username = {current_user.username}")
+        return flask.render_template("home.html")
     return flask.render_template("login.html")
 
 
@@ -213,6 +210,7 @@ def main():
     Main page just reroutes to index or login depending on whether the
     user is authenticated
     """
+    print("proc'ing main()")
     if current_user.is_authenticated:
         return flask.redirect(flask.url_for("home"))
     return flask.redirect(flask.url_for("login"))
@@ -227,6 +225,7 @@ Code for String Squad's HTML:
 @login_required
 def home():
     # TODO: add code here
+    print("proc'ing home()")
     return flask.render_template("home.html")
 
 
