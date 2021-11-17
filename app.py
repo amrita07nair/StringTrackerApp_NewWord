@@ -317,8 +317,23 @@ def get_current_instr_name():
 @app.route("/analytics")
 @login_required
 def analytics():
-    # TODO: add code here
-    return flask.render_template("analytics.html")
+    total_playtime = 13
+    avg_lifespan = 100
+    string_life = total_playtime / avg_lifespan
+    string_health = 100
+    # when you have played more than 30% of the string's anticipated lifespan
+    if string_life > 0.3:
+        string_health = 3
+    elif string_life > 0.10:
+        string_health = 2
+    else:
+        string_health = 1
+    current_instr_name = get_current_instr_name()
+    return flask.render_template(
+        "analytics.html",
+        string_health=string_health,
+        current_instr_name=current_instr_name,
+    )
 
 
 @app.route("/settings")
