@@ -159,7 +159,7 @@ def signup_post():
     email = flask.request.form.get("email")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
-    user = User.query.filter_by(username=username).first()
+    user = get_user_by_username(username)
     if user:
         return flask.redirect(flask.url_for("login"))
     else:
@@ -167,6 +167,11 @@ def signup_post():
         db.session.add(user)
         db.session.commit()
         return flask.redirect(flask.url_for("login"))
+
+
+def get_user_by_username(username):
+    user = User.query.filter_by(username=username).first()
+    return user
 
 
 @app.route("/login")
@@ -184,11 +189,22 @@ def login_post():
     """
     email = flask.request.form.get("email")
     password = flask.request.form.get("password")
-    user = User.query.filter_by(email=email).first()
-    if user and user.verify_password(password):
+    user = get_user_by_email(email)
+    if user_login_success(user, password):
         login_user(user)
         return flask.redirect(flask.url_for("home"))
     return flask.render_template("login.html")
+
+
+def get_user_by_email(email):
+    user = User.query.filter_by(email=email).first()
+    return user
+
+
+def user_login_success(user, password):
+    if user and user.verify_password(password):
+        return True
+    return False
 
 
 @app.route("/")
@@ -247,7 +263,7 @@ def database_post():
     print("/database POST request received.")
     instr_type = flask.request.form.get("instr_type")
     instr_name = flask.request.form.get("instr_name")
-    compound_name = getCompoundName(instr_name, instr_type)
+    compound_name = get_compound_name(instr_name, instr_type)
     user_id = current_user.id
     # TODO: Add in form validation
     new_instr = Instruments(
@@ -262,7 +278,12 @@ def database_post():
 
     # we assume that the newly added instrument is the user's new current instrument, so we attach it to user's profile
     set_of_instr = current_user.instruments
-    added_instr_id = set_of_instr.query.filter_by(instr_name=instr_name).first()
+
+    added_instr_id = 0
+    for instr in set_of_instr:
+        if instr.instr_name == instr_name:
+            added_instr_id = instr.instr_id
+
     current_user.current_instr_id = added_instr_id
 
     instr_names = getUserInstrumentNames()
@@ -299,7 +320,7 @@ def settings():
     return flask.render_template("settings.html")
 
 
-def getCompoundName(instr_name, instr_type):
+def get_compound_name(instr_name, instr_type):
     return f"{instr_name} - {instr_type}"
 
 
@@ -357,7 +378,7 @@ if __name__ == "__main__":
     app.run(
         # debug = True
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8229")),
+        port=int(os.getenv("PORT", "8230")),
         debug=True,
     )
 # up til here username and routing works. time to implement password from here. HTML hasnt broken anything
