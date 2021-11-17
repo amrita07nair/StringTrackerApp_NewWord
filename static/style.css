@@ -1,74 +1,64 @@
-/* 
-Credit: 
-https://www.w3schools.com/howto/howto_css_images_side_by_side.asp 
-https://stackoverflow.com/questions/19414856/how-can-i-make-all-images-of-different-height-and-width-the-same-via-css
-*/
-
-img {
-    padding: 5px;
-  }
-
-hr {
-    height: 1px;
-    background-color: rgb(224, 171, 171);
-    border: none;
+body {
+  
+  color: #000000;
 }
 
-form {
-  padding: 15px;
-  border: 1px solid #666;
-  background: #fff;
+h1 {
+  font-size: 48px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 200;
+
+  text-align: center;
+  line-height: 59px;
+
+  padding: 0 64px;
+  margin: 0;
+}
+
+.stopwatch {
+  display: grid;
+  justify-items: center;
+  grid-row-gap: 23px;
+  width: 100%;
+  padding-top: 25px;
+}
+
+
+}
+
+.time {
+  font-family: "Roboto Mono", monospace;
+  font-weight: 300;
+  font-size: 48px;
+}
+
+.gold {
+  font-weight: 900;
+
+  color: #000000;
+  text-shadow: 0 0 0px #fff, 0 0 50px #000000;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+
+  width: 187px;
+}
+
+button {
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+  border: none;
+  margin: 0;
+  outline: none;
+}
+
+#playButton {
+  display: block;
+}
+
+#pauseButton {
   display: none;
 }
-
-.my-custom-row {
-    background-color: bisque;
-}
-
-.login {
-    background-color: bisque;
-    text-align: center;
-    padding: 0;
-    overflow: hidden; 
-}
-
-  
-  label {
-    display: block;
-    margin-bottom: 2px;
-  }
-  
-  .error-message {
-    color: #cc0033;
-    display: inline-block;
-    font-size: 12px;
-    line-height: 15px;
-    margin: 5px 0 0;
-    text-align: center;
-  }
-
-  .success-message {
-    color: #42972d;
-    display: inline-block;
-    font-size: 12px;
-    line-height: 15px;
-    margin: 5px 0 0;
-  }
-  
-  /* Error Styling */
-  
-  .error label {
-    color: #cc0033;
-  }
-  
-  .error input[type=text] {
-    background-color: #fce4e4;
-    border: 1px solid #cc0033;
-    outline: none;
-  }
-  
-  .error .error-message {
-    display: inline-block;
-  }
-  
-  
