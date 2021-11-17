@@ -123,7 +123,7 @@ def load_user(user_name):
     """
     Required by flask_login
     """
-    return User.query.get(user_name)
+    return get_user_by_username(user_name)
 
 
 @app.route("/index")
@@ -237,17 +237,7 @@ def database():
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
-    print("O_O")
-    print(type(instr_names_len))
-
-    try:
-        curr_instr_name = (
-            Instruments.query.filter_by(instr_id=current_user.current_instr_id)
-            .first()
-            .instr_name
-        )
-    except AttributeError:
-        curr_instr_name = ""
+    curr_instr_name = get_current_instr_name()
 
     return flask.render_template(
         "database.html",
@@ -265,7 +255,12 @@ def database_post():
     instr_name = flask.request.form.get("instr_name")
     compound_name = get_compound_name(instr_name, instr_type)
     user_id = current_user.id
-    # TODO: Add in form validation
+    is_valid = validate_new_instr_form(instr_name, instr_type)
+
+    if not is_valid:
+        # TODO: Return to database.HTML and don't add to DB
+        print("Implement this")
+
     new_instr = Instruments(
         compound_name=compound_name,
         user_id=user_id,
@@ -289,6 +284,23 @@ def database_post():
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
+    curr_instr_name = get_current_instr_name()
+
+    return flask.render_template(
+        "database.html",
+        curr_instr_name=curr_instr_name,
+        instr_names=instr_names,
+        instr_names_len=instr_names_len,
+    )
+
+
+def validate_new_instr_form(instr_name, instr_type):
+    if instr_name != "" and instr_type != "":
+        return True
+    return False
+
+
+def get_current_instr_name():
     try:
         curr_instr_name = (
             Instruments.query.filter_by(instr_id=current_user.current_instr_id)
@@ -297,13 +309,7 @@ def database_post():
         )
     except AttributeError:
         curr_instr_name = ""
-
-    return flask.render_template(
-        "database.html",
-        curr_instr_name=curr_instr_name,
-        instr_names=instr_names,
-        instr_names_len=instr_names_len,
-    )
+    return curr_instr_name
 
 
 @app.route("/analytics")
@@ -364,14 +370,6 @@ def change_instr():
         instr_names=instr_names,
         instr_names_len=instr_names_len,
     )
-
-
-def getInstrumentsStringsNames():
-    set_of_instr = current_user.instruments
-    instr_names = []
-    for instr in set_of_instr:
-        instr_names.append(instr.instr_name)
-    return instr_names
 
 
 if __name__ == "__main__":

@@ -2,18 +2,36 @@ import unittest
 from unittest.mock import patch
 from app import (
     User,
+    Instruments,
     user_login_success,
     get_user_by_email,
     get_user_by_username,
     get_compound_name,
+    get_current_instr_name,
+    validate_new_instr_form,
 )
 
 
 class UnitTests(unittest.TestCase):
     def setUp(self):
         self.mock_db_user_entries = [
-            User(email="test@test.com", username="test", password="hashed_test")
+            User(
+                email="test@test.com",
+                username="test",
+                password="hashed_test",
+            )
         ]
+
+        self.mock_db_instrument_entries = [
+            Instruments(
+                compound_name="Les Paul - Guitar",
+                instr_name="Les Paul",
+                instr_type="Guitar",
+            )
+        ]
+
+    def get_mocked_db_instrument_entries(self):
+        return self.mock_db_instrument_entries
 
     def get_mocked_db_user_entries(self):
         return self.mock_db_user_entries
@@ -48,6 +66,18 @@ class UnitTests(unittest.TestCase):
         instrument_type = "Guitar"
         compound_name = get_compound_name(instrument_name, instrument_type)
         self.assertEqual(compound_name, "Les Paul - Guitar")
+
+    def test_get_current_instr_name(self):
+        with patch("app.User") as mocked_user_query:
+            mocked_user_query = self.get_mocked_db_user_entries
+            with patch("app.Instruments") as mocked_instr_query:
+                mocked_instr_query = self.get_mocked_db_instrument_entries
+                current_instr_name = get_current_instr_name()
+                self.assertIsNotNone(current_instr_name)
+
+    def test_validate_new_instr_form(self):
+        is_valid = validate_new_instr_form("", "Guitar")
+        self.assertFalse(is_valid)
 
 
 if __name__ == "__main__":
