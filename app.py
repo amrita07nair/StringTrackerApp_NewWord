@@ -27,7 +27,7 @@ load_dotenv(find_dotenv())
 
 app = flask.Flask(__name__, static_folder="./build/static")
 # Point SQLAlchemy to your Heroku database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL1")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = "I am a secret key"
@@ -152,6 +152,7 @@ def signup_post():
     email = flask.request.form.get("email")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
+
     user = get_user_by_username(username)
     if user:
         return flask.redirect(flask.url_for("login"))
@@ -181,7 +182,6 @@ def login_post():
     """
     Handler for login form data
     """
-    print("proc'ing login_post()")
     email = flask.request.form.get("email")
     password = flask.request.form.get("password")
     user = get_user_by_email(email)
@@ -378,7 +378,3 @@ if __name__ == "__main__":
         port=int(os.getenv("PORT", "8230")),
         debug=True,
     )
-# up til here username and routing works. time to implement password from here. HTML hasnt broken anything
-# adding password to db.columns and seeing if they breakes anything
-# added in db column for password and hardcoded filler password to test if db will accept new column
-# basic password stuff working!!!!!!!! now polish and add flask.flask or jsonify :)
