@@ -260,6 +260,7 @@ def database_post():
     db.session.add(new_instr)
     db.session.commit()
 
+<<<<<<< HEAD
     set_of_instr = current_user.instruments
 
     added_instr_id = 0
@@ -272,6 +273,13 @@ def database_post():
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
+=======
+    # we assume that the newly added instrument is the user's new current instrument, so we attach it to user's profile
+    set_of_instr = current_user.instruments
+    added_instr_id = set_of_instr.query.filter_by(instr_name=instr_name).first()
+    current_user.current_instr_id = added_instr_id
+
+>>>>>>> 8bcd2ecd13367778f4476e39ef70cdb8f466afe1
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
@@ -286,9 +294,15 @@ def database_post():
 
     return flask.render_template(
         "database.html",
+<<<<<<< HEAD
         instr_names=instr_names,
         instr_names_len=instr_names_len,
         curr_instr_name=curr_instr_name,
+=======
+        curr_instr_name=curr_instr_name,
+        instr_names=instr_names,
+        instr_names_len=instr_names_len,
+>>>>>>> 8bcd2ecd13367778f4476e39ef70cdb8f466afe1
     )
 
 
@@ -342,6 +356,18 @@ def change_instr():
     current_user.current_instr_id = curr_instr_id
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
+<<<<<<< HEAD
+=======
+
+    print(f"Current user instrument changed to {current_user.current_instr_id}")
+    return flask.render_template(
+        "database.html",
+        curr_instr_name=curr_instr_name,
+        instr_names=instr_names,
+        instr_names_len=instr_names_len,
+    )
+
+>>>>>>> 8bcd2ecd13367778f4476e39ef70cdb8f466afe1
 
     print(f"Current user instrument changed to {current_user.current_instr_id}")
     return flask.render_template(
