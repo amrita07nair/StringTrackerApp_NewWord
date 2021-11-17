@@ -27,7 +27,7 @@ load_dotenv(find_dotenv())
 
 app = flask.Flask(__name__, static_folder="./build/static")
 # Point SQLAlchemy to your Heroku database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL1")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = "I am a secret key"
@@ -36,7 +36,6 @@ db = SQLAlchemy(app)
 
 # first connect Heroku Postgres to SQLAlchemy
 # https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
-
 
 class User(UserMixin, db.Model):
     """
@@ -65,11 +64,14 @@ class User(UserMixin, db.Model):
     def get_email(self):
         return self.email
 
+
     def get_username(self):
         """
         Getter for username attribute
         """
         return self.username
+    
+    def get_password(self):
 
     def get_password(self):
 
@@ -111,7 +113,6 @@ class Stringlifespans(db.Model):
     """
     string_lifespans = db.Column(db.String(65535), nullable=False)
 
-
 db.create_all()
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -142,7 +143,6 @@ def logout():
     logout_user()
     return flask.redirect(flask.url_for("login"))
 
-
 @app.route("/signup")
 def signup():
     """
@@ -159,6 +159,7 @@ def signup_post():
     email = flask.request.form.get("email")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
+
     user = get_user_by_username(username)
     if user:
         return flask.redirect(flask.url_for("login"))
@@ -174,6 +175,7 @@ def get_user_by_username(username):
     return user
 
 
+
 @app.route("/login")
 def login():
     """
@@ -187,6 +189,7 @@ def login_post():
     """
     Handler for login form data
     """
+
     email = flask.request.form.get("email")
     password = flask.request.form.get("password")
     user = get_user_by_email(email)
@@ -245,7 +248,6 @@ def database():
         instr_names=instr_names,
         instr_names_len=instr_names_len,
     )
-
 
 @app.route("/database", methods=["POST"])
 @login_required
@@ -379,7 +381,3 @@ if __name__ == "__main__":
         port=int(os.getenv("PORT", "8230")),
         debug=True,
     )
-# up til here username and routing works. time to implement password from here. HTML hasnt broken anything
-# adding password to db.columns and seeing if they breakes anything
-# added in db column for password and hardcoded filler password to test if db will accept new column
-# basic password stuff working!!!!!!!! now polish and add flask.flask or jsonify :)
