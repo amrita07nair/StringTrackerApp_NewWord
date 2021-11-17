@@ -27,7 +27,7 @@ load_dotenv(find_dotenv())
 
 app = flask.Flask(__name__, static_folder="./build/static")
 # Point SQLAlchemy to your Heroku database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL1")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = "I am a secret key"
@@ -36,6 +36,7 @@ db = SQLAlchemy(app)
 
 # first connect Heroku Postgres to SQLAlchemy
 # https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
+
 
 class User(UserMixin, db.Model):
     """
@@ -64,14 +65,11 @@ class User(UserMixin, db.Model):
     def get_email(self):
         return self.email
 
-
     def get_username(self):
         """
         Getter for username attribute
         """
         return self.username
-    
-    def get_password(self):
 
     def get_password(self):
 
@@ -113,6 +111,7 @@ class Stringlifespans(db.Model):
     """
     string_lifespans = db.Column(db.String(65535), nullable=False)
 
+
 db.create_all()
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -142,6 +141,7 @@ def index():
 def logout():
     logout_user()
     return flask.redirect(flask.url_for("login"))
+
 
 @app.route("/signup")
 def signup():
@@ -173,7 +173,6 @@ def signup_post():
 def get_user_by_username(username):
     user = User.query.filter_by(username=username).first()
     return user
-
 
 
 @app.route("/login")
@@ -248,6 +247,7 @@ def database():
         instr_names=instr_names,
         instr_names_len=instr_names_len,
     )
+
 
 @app.route("/database", methods=["POST"])
 @login_required
@@ -378,6 +378,6 @@ if __name__ == "__main__":
     app.run(
         # debug = True
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8230")),
+        port=int(os.getenv("PORT", "8231")),
         debug=True,
     )
