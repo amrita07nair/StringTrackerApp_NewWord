@@ -38,9 +38,6 @@ db = SQLAlchemy(app)
 # https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
 
 
-
-
-
 class User(UserMixin, db.Model):
     """
     Model for a) User rows in the DB and b) Flask Login object
@@ -58,23 +55,22 @@ class User(UserMixin, db.Model):
         self.email = email
         self.username = username
         self.password = generate_password_hash(password)
-        
-    
+
     def __repr__(self):
         """
         Determines what happens when we print an instance of the class
         """
         return f"<User {self.email}, {self.username}>"
-    
+
     def get_email(self):
         return self.email
-    
+
     def get_username(self):
         """
         Getter for username attribute
         """
         return self.username
-    
+
     def get_password(self):
 
         return self.password
@@ -146,6 +142,7 @@ def logout():
     logout_user()
     return flask.redirect(flask.url_for("login"))
 
+
 @app.route("/signup")
 def signup():
     """
@@ -162,11 +159,11 @@ def signup_post():
     email = flask.request.form.get("email")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
-    user = User.query.filter_by(username=username).first() 
+    user = User.query.filter_by(username=username).first()
     if user:
-         return flask.redirect(flask.url_for("login"))
+        return flask.redirect(flask.url_for("login"))
     else:
-        user = User(email = email, username=username, password = password)
+        user = User(email=email, username=username, password=password)
         db.session.add(user)
         db.session.commit()
         return flask.redirect(flask.url_for("login"))
@@ -223,6 +220,7 @@ def database():
     # TODO: add code here
     return flask.render_template("database.html")
 
+
 """
 @app.route("/database", methods=["POST"])
 @login_required
@@ -246,6 +244,7 @@ def database_post():
 #this is a change 
 """
 
+
 @app.route("/analytics")
 @login_required
 def analytics():
@@ -266,12 +265,14 @@ def getCompoundName(instr_name, instr_type):
 
 if __name__ == "__main__":
     app.run(
-        #debug = True
-        host=os.getenv("IP", "0.0.0.0"), port=int(os.getenv("PORT", "8000")), debug=True
+        # debug = True
+        host=os.getenv("IP", "0.0.0.0"),
+        port=int(os.getenv("PORT", "8233")),
+        debug=True,
     )
-#up til here username and routing works. time to implement password from here. HTML hasnt broken anything
-#adding password to db.columns and seeing if they breakes anything
-#added in db column for password and hardcoded filler password to test if db will accept new column
-#basic password stuff working!!!!!!!! now polish and add flask.flask or jsonify :)
-#appworks with email addition (works like how un ans password but with new 3rd field)
+# up til here username and routing works. time to implement password from here. HTML hasnt broken anything
+# adding password to db.columns and seeing if they breakes anything
+# added in db column for password and hardcoded filler password to test if db will accept new column
+# basic password stuff working!!!!!!!! now polish and add flask.flask or jsonify :)
+# appworks with email addition (works like how un ans password but with new 3rd field)
 # TODO: implement hash for password --> implement flask flash --> implement password restrictions(min 8 characters, needs at least 1 number and 1 special character) --> implement email restrictions (needs an @ and ends with gmail.com/yahoo.com/aol.com/hotmail.com) --> spruce up html with instructions and bootstrap
