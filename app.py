@@ -82,12 +82,24 @@ class User(UserMixin, db.Model):
 """
 Sessions:
 - session_id (primary key)
-- user_id (relationship with user table) - many:one (session:user) // (OR: many:many)
-- instrument_id (relationship with instrument table) -  many:one (session:instr) // (OR: many:many)
-- string_id (relationship with string table) - many:one (session:str) // (OR: many:many)
+- user_id (relationship with user table) - many:one (session:user)
+- instrument_id (relationship with instrument table) -  many:one (session:instr)
+- string_id (relationship with string table) - many:one (session:str) 
 - playtime_mins (integer) 
 - date (string)
 """
+
+
+class Sessions(db.Model):
+    session_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user = db.relationship("User")
+    instr_id = db.Column(db.Integer, db.ForeignKey("instruments.instr_id"))
+    instrument = db.relationship("Instruments")
+    string_id = db.Column(db.Integer, db.ForeignKey("string.str_id"))
+    string = db.relationship("Strings")
+    playtime_mins = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.Integer, nullable=False)
 
 
 class Instruments(db.Model):
