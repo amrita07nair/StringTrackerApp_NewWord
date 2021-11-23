@@ -79,6 +79,17 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password, password)
 
 
+"""
+Sessions:
+- session_id (primary key)
+- user_id (relationship with user table) - many:one (session:user) // (OR: many:many)
+- instrument_id (relationship with instrument table) -  many:one (session:instr) // (OR: many:many)
+- string_id (relationship with string table) - many:one (session:str) // (OR: many:many)
+- playtime_mins (integer) 
+- date (string)
+"""
+
+
 class Instruments(db.Model):
     # TODO: Should instr_id be a compound, like Type:Name, or just an int?
     instr_id = db.Column(db.Integer, primary_key=True)
