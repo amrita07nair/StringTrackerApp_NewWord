@@ -96,7 +96,7 @@ class Sessions(db.Model):
     user = db.relationship("User")
     instr_id = db.Column(db.Integer, db.ForeignKey("instruments.instr_id"))
     instrument = db.relationship("Instruments")
-    string_id = db.Column(db.Integer, db.ForeignKey("string.str_id"))
+    string_id = db.Column(db.Integer, db.ForeignKey("strings.str_id"))
     string = db.relationship("Strings")
     playtime_mins = db.Column(db.Integer, nullable=False)
     date = db.Column(db.Integer, nullable=False)
