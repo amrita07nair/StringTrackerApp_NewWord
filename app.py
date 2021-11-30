@@ -22,8 +22,8 @@ from flask_login import (
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
-load_dotenv(find_dotenv())
 
+load_dotenv(find_dotenv())
 
 app = flask.Flask(__name__, static_folder="./build/static")
 # Point SQLAlchemy to your Heroku database
@@ -55,6 +55,14 @@ class User(UserMixin, db.Model):
         self.email = email
         self.username = username
         self.password = generate_password_hash(password)
+
+    """
+    def __init__(self, email, username, password, current_instr_id):
+        #self.email = email
+        self.username = username
+        self.password = generate_password_hash(password)
+        self.current_instr_id = current_instr_id
+    """
 
     def __repr__(self):
         """
@@ -239,13 +247,28 @@ def database():
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
-    curr_instr_name = get_current_instr_name()
+
+    print("O_O")
+    print(type(instr_names_len))
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
+    try:
+        curr_instr_name = (
+            Instruments.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .instr_name
+        )
+    except AttributeError:
+        curr_instr_name = ""
+    print("HELLOOOOO")
 
     return flask.render_template(
         "database.html",
         curr_instr_name=curr_instr_name,
         instr_names=instr_names,
         instr_names_len=instr_names_len,
+        str_names=str_names,
+        str_names_len=str_names_len,
     )
 
 
@@ -273,7 +296,6 @@ def database_post():
     db.session.add(new_instr)
     db.session.commit()
 
-    # we assume that the newly added instrument is the user's new current instrument, so we attach it to user's profile
     set_of_instr = current_user.instruments
 
     added_instr_id = 0
@@ -283,26 +305,21 @@ def database_post():
 
     current_user.current_instr_id = added_instr_id
 
+    db.session.add(current_user)
+    db.session.commit()
+
+    print(f"user1 is {current_user.id}")
+    print(f"attached instrument id {current_user.current_instr_id}")
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
-    curr_instr_name = get_current_instr_name()
-
-    return flask.render_template(
-        "database.html",
-        curr_instr_name=curr_instr_name,
-        instr_names=instr_names,
-        instr_names_len=instr_names_len,
-    )
+    instr_names = getUserInstrumentNames()
+    instr_names_len = int(len(instr_names))
 
 
-def validate_new_instr_form(instr_name, instr_type):
-    if instr_name != "" and instr_type != "":
-        return True
-    return False
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
 
-
-def get_current_instr_name():
     try:
         curr_instr_name = (
             Instruments.query.filter_by(instr_id=current_user.current_instr_id)
@@ -311,7 +328,17 @@ def get_current_instr_name():
         )
     except AttributeError:
         curr_instr_name = ""
-    return curr_instr_name
+
+
+    return flask.render_template(
+        "database.html",
+        instr_names=instr_names,
+        instr_names_len=instr_names_len,
+        curr_instr_name=curr_instr_name,
+        str_names=str_names,
+        str_names_len=str_names_len,
+    )
+
 
 
 @app.route("/analytics")
@@ -350,6 +377,15 @@ def getCurrentInstrument(curr_instr_name):
     return curr_instr_db_obj
 
 
+# Get string names using current user's instrument id
+def getUserStringNames():
+    set_of_str = Strings.query.filter_by(instr_id=current_user.current_instr_id)
+    str_names = []
+    for str in set_of_str:
+        str_names.append(str.str_name)
+    return str_names
+
+
 @app.route("/changeinstr", methods=["POST"])
 @login_required
 def change_instr():
@@ -365,13 +401,72 @@ def change_instr():
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
+    db.session.add(current_user)
+    db.session.commit()
+
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
+
     print(f"Current user instrument changed to {current_user.current_instr_id}")
     return flask.render_template(
         "database.html",
         curr_instr_name=curr_instr_name,
         instr_names=instr_names,
         instr_names_len=instr_names_len,
+        str_names=str_names,
+        str_names_len=str_names_len,
     )
+
+
+
+@app.route("/add_strings", methods=["POST"])
+@login_required
+def add_strings():
+    print(f"add_strings post received")
+    str_name = flask.request.form.get("str_name")
+    str_cost = flask.request.form.get("str_cost")
+    print(f"user is {current_user.id}")
+    print(f"current instrument id {current_user.current_instr_id}")
+    instr_id = current_user.current_instr_id
+    new_strings = Strings(str_name=str_name, str_cost=str_cost, instr_id=instr_id)
+    db.session.add(new_strings)
+    db.session.commit()
+
+    print(f"current strings for instr is {str_name}")
+    return flask.redirect(flask.url_for("database"))
+
+
+@app.route("/change_strings", methods=["POST"])
+@login_required
+def change_strings():
+    print(f"change_strings post received")
+    curr_str_name = flask.request.form.get("strings")
+
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
+    instr_names = getUserInstrumentNames()
+    instr_names_len = int(len(instr_names))
+
+    try:
+        curr_instr_name = (
+            Instruments.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .instr_name
+        )
+    except AttributeError:
+        curr_instr_name = ""
+
+    print(f"curr strings is {curr_str_name}")
+    return flask.render_template(
+        "database.html",
+        curr_instr_name=curr_instr_name,
+        curr_str_name=curr_str_name,
+        str_names=str_names,
+        str_names_len=str_names_len,
+        instr_names=instr_names,
+        instr_names_len=instr_names_len,
+    )
+
 
 
 if __name__ == "__main__":
