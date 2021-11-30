@@ -103,12 +103,12 @@ class Stringlifespans(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     # string_lifespans is a JSON object stored as a string
     """
-    Ex:
-        - {
-            "Guitar A - String B": [80, 90], 
-            "Guitar B - String C": [100, 120, 130],
-            }
-    """
+   Ex:
+       - {
+           "Guitar A - String B": [80, 90],
+           "Guitar B - String C": [100, 120, 130],
+           }
+   """
     string_lifespans = db.Column(db.String(65535), nullable=False)
 
 
@@ -224,6 +224,9 @@ def database():
     print("O_O")
     print(type(instr_names_len))
 
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
+
     try:
         curr_instr_name = (
             Instruments.query.filter_by(instr_id=current_user.current_instr_id)
@@ -232,16 +235,13 @@ def database():
         )
     except AttributeError:
         curr_instr_name = ""
-<<<<<<< HEAD
-
-=======
-    print("HELLOOOOO")
->>>>>>> parent of 9091340... Merge branch 'main' into CreateStrings
     return flask.render_template(
         "database.html",
         curr_instr_name=curr_instr_name,
         instr_names=instr_names,
         instr_names_len=instr_names_len,
+        str_names=str_names,
+        str_names_len=str_names_len,
     )
 
 
@@ -264,7 +264,6 @@ def database_post():
     db.session.add(new_instr)
     db.session.commit()
 
-<<<<<<< HEAD
     set_of_instr = current_user.instruments
 
     added_instr_id = 0
@@ -274,18 +273,17 @@ def database_post():
 
     current_user.current_instr_id = added_instr_id
 
+    db.session.add(current_user)
+    db.session.commit()
+
+    print(f"user1 is {current_user.id}")
+    print(f"attached instrument id {current_user.current_instr_id}")
+
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
-=======
-    # we assume that the newly added instrument is the user's new current instrument, so we attach it to user's profile
-    set_of_instr = current_user.instruments
-    added_instr_id = set_of_instr.query.filter_by(instr_name=instr_name).first()
-    current_user.current_instr_id = added_instr_id
-
->>>>>>> 8bcd2ecd13367778f4476e39ef70cdb8f466afe1
-    instr_names = getUserInstrumentNames()
-    instr_names_len = int(len(instr_names))
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
 
     try:
         curr_instr_name = (
@@ -298,15 +296,11 @@ def database_post():
 
     return flask.render_template(
         "database.html",
-<<<<<<< HEAD
         instr_names=instr_names,
         instr_names_len=instr_names_len,
         curr_instr_name=curr_instr_name,
-=======
-        curr_instr_name=curr_instr_name,
-        instr_names=instr_names,
-        instr_names_len=instr_names_len,
->>>>>>> 8bcd2ecd13367778f4476e39ef70cdb8f466afe1
+        str_names=str_names,
+        str_names_len=str_names_len,
     )
 
 
@@ -346,6 +340,15 @@ def getCurrentInstrument(curr_instr_name):
     return curr_instr_db_obj
 
 
+# Get string names using current user's instrument id
+def getUserStringNames():
+    set_of_str = Strings.query.filter_by(instr_id=current_user.current_instr_id)
+    str_names = []
+    for str in set_of_str:
+        str_names.append(str.str_name)
+    return str_names
+
+
 @app.route("/changeinstr", methods=["POST"])
 @login_required
 def change_instr():
@@ -360,8 +363,12 @@ def change_instr():
     current_user.current_instr_id = curr_instr_id
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
-<<<<<<< HEAD
-=======
+
+    db.session.add(current_user)
+    db.session.commit()
+
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
 
     print(f"Current user instrument changed to {current_user.current_instr_id}")
     return flask.render_template(
@@ -369,14 +376,55 @@ def change_instr():
         curr_instr_name=curr_instr_name,
         instr_names=instr_names,
         instr_names_len=instr_names_len,
+        str_names=str_names,
+        str_names_len=str_names_len,
     )
 
->>>>>>> 8bcd2ecd13367778f4476e39ef70cdb8f466afe1
 
-    print(f"Current user instrument changed to {current_user.current_instr_id}")
+@app.route("/add_strings", methods=["POST"])
+@login_required
+def add_strings():
+    print(f"add_strings post received")
+    str_name = flask.request.form.get("str_name")
+    str_cost = flask.request.form.get("str_cost")
+    print(f"user is {current_user.id}")
+    print(f"current instrument id {current_user.current_instr_id}")
+    instr_id = current_user.current_instr_id
+    new_strings = Strings(str_name=str_name, str_cost=str_cost, instr_id=instr_id)
+    db.session.add(new_strings)
+    db.session.commit()
+
+    print(f"current strings for instr is {str_name}")
+    return flask.redirect(flask.url_for("database"))
+
+
+@app.route("/change_strings", methods=["POST"])
+@login_required
+def change_strings():
+    print(f"change_strings post received")
+    curr_str_name = flask.request.form.get("strings")
+
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
+    instr_names = getUserInstrumentNames()
+    instr_names_len = int(len(instr_names))
+
+    try:
+        curr_instr_name = (
+            Instruments.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .instr_name
+        )
+    except AttributeError:
+        curr_instr_name = ""
+
+    print(f"curr strings is {curr_str_name}")
     return flask.render_template(
         "database.html",
         curr_instr_name=curr_instr_name,
+        curr_str_name=curr_str_name,
+        str_names=str_names,
+        str_names_len=str_names_len,
         instr_names=instr_names,
         instr_names_len=instr_names_len,
     )
