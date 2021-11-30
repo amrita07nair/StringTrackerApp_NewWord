@@ -54,7 +54,7 @@
                             Add New Strings
                         </button>
                         <div class="collapse" id="collapseButton">
-                            <form method="POST" action="">
+                            <form method="POST" action="/add_strings">
                                 <b>Name:</b> <input type="text" name="str_name"><br>
                                 <b>Cost:</b> <input type="text" name="str_cost">
                                 <br><br>
@@ -72,6 +72,16 @@
                     <select id="instruments" name="instruments">
                         {% for i in range(0, instr_names_len) %}
                         <option value="{{instr_names[i]}}">{{instr_names[i]}}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit">
+                </form>
+                {{curr_str_name}}
+                <form method="POST" action="/change_strings">
+                    <label for="strings">Change Strings:</label>
+                    <select id="strings" name="strings">
+                        {% for i in range(0, str_names_len) %}
+                        <option value="{{str_names[i]}}">{{str_names[i]}}</option>
                         {% endfor %}
                     </select>
                     <input type="submit">
