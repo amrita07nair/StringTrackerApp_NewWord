@@ -235,11 +235,6 @@ def database():
         )
     except AttributeError:
         curr_instr_name = ""
-<<<<<<< HEAD
-
-=======
-    print("HELLOOOOO")
->>>>>>> parent of 9091340... Merge branch 'main' into CreateStrings
     return flask.render_template(
         "database.html",
         curr_instr_name=curr_instr_name,
