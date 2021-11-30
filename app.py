@@ -131,7 +131,7 @@ def load_user(user_name):
     """
     Required by flask_login
     """
-    return User.query.get(user_name)
+    return get_user_by_username(user_name)
 
 
 @app.route("/index")
@@ -167,7 +167,8 @@ def signup_post():
     email = flask.request.form.get("email")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
-    user = User.query.filter_by(username=username).first()
+
+    user = get_user_by_username(username)
     if user:
         return flask.redirect(flask.url_for("login"))
     else:
@@ -175,6 +176,11 @@ def signup_post():
         db.session.add(user)
         db.session.commit()
         return flask.redirect(flask.url_for("login"))
+
+
+def get_user_by_username(username):
+    user = User.query.filter_by(username=username).first()
+    return user
 
 
 @app.route("/login")
@@ -190,6 +196,7 @@ def login_post():
     """
     Handler for login form data
     """
+
     email = flask.request.form.get("email")
     password = flask.request.form.get("password")
     user = get_user_by_email(email)
@@ -240,6 +247,7 @@ def database():
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
+
     print("O_O")
     print(type(instr_names_len))
     str_names = getUserStringNames()
@@ -253,6 +261,7 @@ def database():
     except AttributeError:
         curr_instr_name = ""
     print("HELLOOOOO")
+
     return flask.render_template(
         "database.html",
         curr_instr_name=curr_instr_name,
@@ -269,9 +278,14 @@ def database_post():
     print("/database POST request received.")
     instr_type = flask.request.form.get("instr_type")
     instr_name = flask.request.form.get("instr_name")
-    compound_name = getCompoundName(instr_name, instr_type)
+    compound_name = get_compound_name(instr_name, instr_type)
     user_id = current_user.id
-    # TODO: Add in form validation
+    is_valid = validate_new_instr_form(instr_name, instr_type)
+
+    if not is_valid:
+        # TODO: Return to database.HTML and don't add to DB
+        print("Implement this")
+
     new_instr = Instruments(
         compound_name=compound_name,
         user_id=user_id,
@@ -302,6 +316,7 @@ def database_post():
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
+
     str_names = getUserStringNames()
     str_names_len = int(len(str_names))
 
@@ -314,6 +329,7 @@ def database_post():
     except AttributeError:
         curr_instr_name = ""
 
+
     return flask.render_template(
         "database.html",
         instr_names=instr_names,
@@ -322,6 +338,7 @@ def database_post():
         str_names=str_names,
         str_names_len=str_names_len,
     )
+
 
 
 @app.route("/analytics")
@@ -338,7 +355,7 @@ def settings():
     return flask.render_template("settings.html")
 
 
-def getCompoundName(instr_name, instr_type):
+def get_compound_name(instr_name, instr_type):
     return f"{instr_name} - {instr_type}"
 
 
@@ -401,6 +418,7 @@ def change_instr():
     )
 
 
+
 @app.route("/add_strings", methods=["POST"])
 @login_required
 def add_strings():
@@ -450,14 +468,11 @@ def change_strings():
     )
 
 
+
 if __name__ == "__main__":
     app.run(
         # debug = True
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8229")),
+        port=int(os.getenv("PORT", "8231")),
         debug=True,
     )
-# up til here username and routing works. time to implement password from here. HTML hasnt broken anything
-# adding password to db.columns and seeing if they breakes anything
-# added in db column for password and hardcoded filler password to test if db will accept new column
-# basic password stuff working!!!!!!!! now polish and add flask.flask or jsonify :)
