@@ -103,12 +103,12 @@ class Stringlifespans(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     # string_lifespans is a JSON object stored as a string
     """
-    Ex:
-        - {
-            "Guitar A - String B": [80, 90], 
-            "Guitar B - String C": [100, 120, 130],
-            }
-    """
+   Ex:
+       - {
+           "Guitar A - String B": [80, 90],
+           "Guitar B - String C": [100, 120, 130],
+           }
+   """
     string_lifespans = db.Column(db.String(65535), nullable=False)
 
 
@@ -123,7 +123,7 @@ def load_user(user_name):
     """
     Required by flask_login
     """
-    return get_user_by_username(user_name)
+    return User.query.get(user_name)
 
 
 @app.route("/index")
@@ -159,8 +159,7 @@ def signup_post():
     email = flask.request.form.get("email")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
-
-    user = get_user_by_username(username)
+    user = User.query.filter_by(username=username).first()
     if user:
         return flask.redirect(flask.url_for("login"))
     else:
@@ -168,11 +167,6 @@ def signup_post():
         db.session.add(user)
         db.session.commit()
         return flask.redirect(flask.url_for("login"))
-
-
-def get_user_by_username(username):
-    user = User.query.filter_by(username=username).first()
-    return user
 
 
 @app.route("/login")
@@ -188,25 +182,13 @@ def login_post():
     """
     Handler for login form data
     """
-
     email = flask.request.form.get("email")
     password = flask.request.form.get("password")
-    user = get_user_by_email(email)
-    if user_login_success(user, password):
+    user = User.query.filter_by(email=email).first()
+    if user and user.verify_password(password):
         login_user(user)
         return flask.redirect(flask.url_for("home"))
     return flask.render_template("login.html")
-
-
-def get_user_by_email(email):
-    user = User.query.filter_by(email=email).first()
-    return user
-
-
-def user_login_success(user, password):
-    if user and user.verify_password(password):
-        return True
-    return False
 
 
 @app.route("/")
@@ -239,13 +221,27 @@ def database():
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
-    curr_instr_name = get_current_instr_name()
+    print("O_O")
+    print(type(instr_names_len))
 
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
+
+    try:
+        curr_instr_name = (
+            Instruments.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .instr_name
+        )
+    except AttributeError:
+        curr_instr_name = ""
     return flask.render_template(
         "database.html",
         curr_instr_name=curr_instr_name,
         instr_names=instr_names,
         instr_names_len=instr_names_len,
+        str_names=str_names,
+        str_names_len=str_names_len,
     )
 
 
@@ -255,14 +251,9 @@ def database_post():
     print("/database POST request received.")
     instr_type = flask.request.form.get("instr_type")
     instr_name = flask.request.form.get("instr_name")
-    compound_name = get_compound_name(instr_name, instr_type)
+    compound_name = getCompoundName(instr_name, instr_type)
     user_id = current_user.id
-    is_valid = validate_new_instr_form(instr_name, instr_type)
-
-    if not is_valid:
-        # TODO: Return to database.HTML and don't add to DB
-        print("Implement this")
-
+    # TODO: Add in form validation
     new_instr = Instruments(
         compound_name=compound_name,
         user_id=user_id,
@@ -273,7 +264,6 @@ def database_post():
     db.session.add(new_instr)
     db.session.commit()
 
-    # we assume that the newly added instrument is the user's new current instrument, so we attach it to user's profile
     set_of_instr = current_user.instruments
 
     added_instr_id = 0
@@ -283,26 +273,18 @@ def database_post():
 
     current_user.current_instr_id = added_instr_id
 
+    db.session.add(current_user)
+    db.session.commit()
+
+    print(f"user1 is {current_user.id}")
+    print(f"attached instrument id {current_user.current_instr_id}")
+
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
-    curr_instr_name = get_current_instr_name()
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
 
-    return flask.render_template(
-        "database.html",
-        curr_instr_name=curr_instr_name,
-        instr_names=instr_names,
-        instr_names_len=instr_names_len,
-    )
-
-
-def validate_new_instr_form(instr_name, instr_type):
-    if instr_name != "" and instr_type != "":
-        return True
-    return False
-
-
-def get_current_instr_name():
     try:
         curr_instr_name = (
             Instruments.query.filter_by(instr_id=current_user.current_instr_id)
@@ -311,7 +293,15 @@ def get_current_instr_name():
         )
     except AttributeError:
         curr_instr_name = ""
-    return curr_instr_name
+
+    return flask.render_template(
+        "database.html",
+        instr_names=instr_names,
+        instr_names_len=instr_names_len,
+        curr_instr_name=curr_instr_name,
+        str_names=str_names,
+        str_names_len=str_names_len,
+    )
 
 
 @app.route("/analytics")
@@ -328,7 +318,7 @@ def settings():
     return flask.render_template("settings.html")
 
 
-def get_compound_name(instr_name, instr_type):
+def getCompoundName(instr_name, instr_type):
     return f"{instr_name} - {instr_type}"
 
 
@@ -350,6 +340,15 @@ def getCurrentInstrument(curr_instr_name):
     return curr_instr_db_obj
 
 
+# Get string names using current user's instrument id
+def getUserStringNames():
+    set_of_str = Strings.query.filter_by(instr_id=current_user.current_instr_id)
+    str_names = []
+    for str in set_of_str:
+        str_names.append(str.str_name)
+    return str_names
+
+
 @app.route("/changeinstr", methods=["POST"])
 @login_required
 def change_instr():
@@ -365,10 +364,67 @@ def change_instr():
     instr_names = getUserInstrumentNames()
     instr_names_len = int(len(instr_names))
 
+    db.session.add(current_user)
+    db.session.commit()
+
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
+
     print(f"Current user instrument changed to {current_user.current_instr_id}")
     return flask.render_template(
         "database.html",
         curr_instr_name=curr_instr_name,
+        instr_names=instr_names,
+        instr_names_len=instr_names_len,
+        str_names=str_names,
+        str_names_len=str_names_len,
+    )
+
+
+@app.route("/add_strings", methods=["POST"])
+@login_required
+def add_strings():
+    print(f"add_strings post received")
+    str_name = flask.request.form.get("str_name")
+    str_cost = flask.request.form.get("str_cost")
+    print(f"user is {current_user.id}")
+    print(f"current instrument id {current_user.current_instr_id}")
+    instr_id = current_user.current_instr_id
+    new_strings = Strings(str_name=str_name, str_cost=str_cost, instr_id=instr_id)
+    db.session.add(new_strings)
+    db.session.commit()
+
+    print(f"current strings for instr is {str_name}")
+    return flask.redirect(flask.url_for("database"))
+
+
+@app.route("/change_strings", methods=["POST"])
+@login_required
+def change_strings():
+    print(f"change_strings post received")
+    curr_str_name = flask.request.form.get("strings")
+
+    str_names = getUserStringNames()
+    str_names_len = int(len(str_names))
+    instr_names = getUserInstrumentNames()
+    instr_names_len = int(len(instr_names))
+
+    try:
+        curr_instr_name = (
+            Instruments.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .instr_name
+        )
+    except AttributeError:
+        curr_instr_name = ""
+
+    print(f"curr strings is {curr_str_name}")
+    return flask.render_template(
+        "database.html",
+        curr_instr_name=curr_instr_name,
+        curr_str_name=curr_str_name,
+        str_names=str_names,
+        str_names_len=str_names_len,
         instr_names=instr_names,
         instr_names_len=instr_names_len,
     )
@@ -378,6 +434,10 @@ if __name__ == "__main__":
     app.run(
         # debug = True
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8231")),
+        port=int(os.getenv("PORT", "8229")),
         debug=True,
     )
+# up til here username and routing works. time to implement password from here. HTML hasnt broken anything
+# adding password to db.columns and seeing if they breakes anything
+# added in db column for password and hardcoded filler password to test if db will accept new column
+# basic password stuff working!!!!!!!! now polish and add flask.flask or jsonify :)
