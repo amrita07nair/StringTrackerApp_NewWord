@@ -76,6 +76,16 @@
                     </select>
                     <input type="submit">
                 </form>
+                {{curr_str_name}}
+                <form method="POST" action="/change_strings">
+                    <label for="strings">Change Instruments Strings:</label>
+                    <select id="strings" name="strings">
+                        {% for i in range(0, str_names_len) %}
+                        <option value="{{str_names[i]}}">{{str_names[i]}}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit">
+                </form>
             </div>
         </div>
     </div>
