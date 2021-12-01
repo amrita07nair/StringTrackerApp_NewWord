@@ -3,10 +3,7 @@ Flask app logic for P1M3
 """
 # pylint: disable=no-member
 # pylint: disable=too-few-public-methods
-from enum import unique
 import os
-import json
-import random
 
 import flask
 
