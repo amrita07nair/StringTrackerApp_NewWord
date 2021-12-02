@@ -10,34 +10,49 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 
-<body>
-    <h1>Log In</h1>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul id="flashes" class=flashes>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
-    <form method="POST" action="/login">
-        <input class="input is-large" type="text" name="email" placeholder="Email" autofocus="">
-        <input class="input is-large" type="password" name="password" placeholder="Password">
-        <input type="submit" value="Submit">
-    </form>
-    <a href={{ url_for('signup') }}>Sign Up</a>
-    <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
-    <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-        crossorigin="anonymous"></script>
+<body style="background-color:rgba(0, 255, 213, 0.322);">
+    <section>
+        <div class="container py-5 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+              <div class="card bg-dark text-white" style="border-radius: 1rem;">
+                <div class="card-body p-5 text-center">
+      
+                  <div class="mb-md-5 mt-md-4 pb-5">
+      
+                    <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
+                    <p class="text-white-50 mb-5">Please enter your email and password!</p>
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <ul id="flashes" class=flashes>
+                        {% for message in messages %}
+                             <li>{{ message }}</li>
+                        {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endwith %}
+                    <form method="POST" action="/login">
+                    <div class="form-outline form-white mb-4">
+                        <input class="input is-large" type="text" name="email" placeholder="Email" autofocus="">
+                    </div>
+      
+                    <div class="form-outline form-white mb-4">
+                        <input class="input is-large" type="password" name="password" placeholder="Password">
+                    </div>
+                    <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
+                    </form>      
+                  </div>
+      
+                  <div>
+                    <p class="mb-0">Don't have an account? <a href={{ url_for('signup') }} class="text-white-50 fw-bold">Sign Up</a></p>
+                  </div>
+      
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 </body>
 
 </html>

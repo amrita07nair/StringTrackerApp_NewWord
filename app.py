@@ -212,8 +212,8 @@ def login_post():
         print(user)
         login_user(user)
         print("DO WE GET HERE")
-        return flask.render_template("home.html") #manual patch to get to home, but anywhere @login_required is, it wont work
-        #return flask.redirect(flask.url_for("home"))
+        #return flask.render_template("home.html") #manual patch to get to home, but anywhere @login_required is, it wont work
+        return flask.redirect(flask.url_for("home"))
     else:
         flask.flash("Invalid email/password. Retry or Sigin Up.")
         return flask.redirect(flask.url_for("login"))
@@ -430,6 +430,6 @@ if __name__ == "__main__":
     app.run(
         # debug = True
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8231")),
+        port=int(os.getenv("PORT", "8000")),
         debug=True,
     )
