@@ -118,14 +118,16 @@ def load_user(user_name):
     """
     return get_user_by_username(user_name)
 
+"""
 @app.route("/index")
 @login_required
 def index():
-    """
-    Main page. Fetches song data and embeds it in the returned HTML. Returns
-    dummy data if something goes wrong.
-    """
+    
+   # Main page. Fetches song data and embeds it in the returned HTML. Returns
+   # dummy data if something goes wrong.
+    
     return flask.render_template("index.html")
+"""
 
 @app.route("/logout")
 @login_required
@@ -205,7 +207,9 @@ def login_post():
     password = flask.request.form.get("password")
     user = get_user_by_email(email)
     if user_login_success(user, password):
+        print("BEFORE LOGIN")
         login_user(user)
+        print("DO WE GET HERE")
         return flask.redirect(flask.url_for("home"))
     else:
         flask.flash("Invalid email/password. Retry or Sigin Up.")
@@ -280,7 +284,7 @@ Code for String Squad's HTML:
 @app.route("/home")
 @login_required
 def home():
-    # TODO: add code here
+    print("IN HOME")
     return flask.render_template("home.html")
 
 @app.route("/database", methods=["GET"])
