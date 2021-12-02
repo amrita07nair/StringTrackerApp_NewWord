@@ -109,6 +109,29 @@ class Stringlifespans(db.Model):
     string_lifespans = db.Column(db.String(65535), nullable=False)
 
 
+"""
+Sessions:
+- session_id (primary key)
+- user_id (relationship with user table) - many:one (session:user)
+- instrument_id (relationship with instrument table) -  many:one (session:instr)
+- string_id (relationship with string table) - many:one (session:str) 
+- playtime_mins (integer) 
+- date (string)
+"""
+
+
+class Sessions(db.Model):
+    session_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user = db.relationship("User")
+    instr_id = db.Column(db.Integer, db.ForeignKey("instruments.instr_id"))
+    instrument = db.relationship("Instruments")
+    string_id = db.Column(db.Integer, db.ForeignKey("strings.str_id"))
+    string = db.relationship("Strings")
+    playtime_mins = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.Integer, nullable=False)
+
+
 db.create_all()
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -304,8 +327,32 @@ def database_post():
 @app.route("/analytics")
 @login_required
 def analytics():
-    # TODO: add code here
-    return flask.render_template("analytics.html")
+    total_playtime = 13
+    avg_lifespan = 100
+    string_life = total_playtime / avg_lifespan
+    string_health = 100
+    # when you have played more than 30% of the string's anticipated lifespan
+    if string_life > 0.3:
+        string_health = 3
+    elif string_life > 0.10:
+        string_health = 2
+    else:
+        string_health = 1
+
+    try:
+        curr_instr_name = (
+            Instruments.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .instr_name
+        )
+    except AttributeError:
+        curr_instr_name = ""
+
+    return flask.render_template(
+        "analytics.html",
+        string_health=string_health,
+        current_instr_name=curr_instr_name,
+    )
 
 
 @app.route("/settings")
