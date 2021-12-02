@@ -5,6 +5,7 @@ Flask app logic for P1M3
 # pylint: disable=too-few-public-methods
 import os
 import requests
+import time
 
 import flask
 
@@ -169,6 +170,8 @@ def signup_post():
             db.session.add(user)
             db.session.commit()
             flask.flash("Registered Successfully! Redirecting to login.")
+            flask.render_template("signup.html")
+            time.sleep(2)
             return flask.redirect(flask.url_for("login"))
     else:
         if password_safe == False:
