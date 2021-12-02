@@ -206,11 +206,14 @@ def login_post():
     email = flask.request.form.get("email")
     password = flask.request.form.get("password")
     user = get_user_by_email(email)
-    if user_login_success(user, password):
-        print("BEFORE LOGIN")
+    user_exists = user_login_success(user, password)
+    if user_exists:
+        print(user_exists)
+        print(user)
         login_user(user)
         print("DO WE GET HERE")
-        return flask.redirect(flask.url_for("home"))
+        return flask.render_template("home.html") #manual patch to get to home, but anywhere @login_required is, it wont work
+        #return flask.redirect(flask.url_for("home"))
     else:
         flask.flash("Invalid email/password. Retry or Sigin Up.")
         return flask.redirect(flask.url_for("login"))
@@ -221,8 +224,12 @@ def get_user_by_email(email):
 
 def user_login_success(user, password):
     if user and user.verify_password(password):
+        print("USER IS VERIFIED")
         return True
-    return False
+    else:
+        print("USER UNABLE TO BE VERIFIED")
+        return False
+
 def password_meet_requirements(password):
     contains_special_char = does_contains_special_char(password)
     contains_number = does_contains_number(password)
