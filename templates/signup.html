@@ -10,18 +10,17 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 
-
 <body>
     <h1>Sign up!</h1>
     {% with messages = get_flashed_messages() %}
-			{% if messages %}
-				<ul id="flashes" class=flashes>
-					{% for message in messages %}
-						<li>{{ message }}</li>
-					{% endfor %}
-				</ul>
-			{% endif %}
-		{% endwith %}
+            {% if messages %}
+                <ul id="flashes" class=flashes>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
     <form method="POST" action="/signup">
         <input class="input is-large" type="text" name="email" placeholder="Email" autofocus="">
         <input class="input is-large" type="text" name="username" placeholder="Username" autofocus="">
