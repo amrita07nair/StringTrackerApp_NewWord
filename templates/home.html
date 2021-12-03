@@ -14,10 +14,9 @@
     <h1>Home</h1>
     <a href="{{ url_for('database') }}">Database</a>
     <a href="{{ url_for('analytics') }}">Analytics</a>
-    <a href="{{ url_for('settings') }}">Settings</a>
     <a href="{{ url_for('logout') }}">Logout</a><br>
     <br>
-
+  
     Current Instrument Name:<br>
     {% if curr_instr_name == "" %}
     You don't have any instruments! Please add one.<br>
@@ -38,6 +37,35 @@
         <input type="submit">
     </form>
 
+    <h6>
+        About StringTracker:
+        <br>
+Welcome to the StringTrackerApp! Thank you for making an sccount with us. If this is your first time using the app, here is a bit more about it:
+<br>
+About the app:<br>
+We recoginized that being a musician requires more than just playing music; so much more happens behind the scenes. Countless hours of practice to perfect performances and taking care of your instruments are intrgral parts of being a musician, and we are here to help you with that. Your instrument is important and must be reliable with a good sounds, but keeping trak of this is difficult. As of now you would need some spreadsheet or document to track your playing stats, but this is cumbersom, difficult to organize, and easy to lose. Here is where StringTracker helps you. Take the guess work and spreadsheets out of the picture, so you can spend time focusing on what really matters, the music! With StringTracker, you can keep statistics about your string instruments and the strings you play on and see helpful analytics. StringTracker will tell you when it is coming time to replace your strings so that you always have a reliable pair of string for your big performance. No more guess work! StringTracker will also tell you the cost per hour a set of strings gave you. Basically, which strings gave you the most bang for your buck! Save your money and time with StringTracker!
+<br>
+Functionality:<br>
+Homepage:<br>
+This is the homepage where you can see your current string an instrument that you are playing. If you are a first time user, go to "database" to add in your first instruments and strings. On this homepage (once you have instruments and strings), you can record playing session times and save them. You can also click on "database", "analytics", and "settings".
+Database:<br>
+This page allows you to add in more instruments and strings. Simply use the drop qown to select the kind of instrument and name it; then, click submit. Make sure that after adding in an instrment you are selected in that instrument to make it you current instrument. From here, add in a string for the instrument. You will need to enter the name of ther strings and how much they cost. Click submit, and you have instruments and string saved! From here, you can use the drop downs and submit buttons to select which instruments and strings you are using currently.
+Analytics:<br>
+Depending on the current instrument and string selected from "Database", you will be able to see the ______
+<br>
+About the developers:<br>
+Meet the team of talented and hardworking programmers who made StringTracker:
+<br>
+Jenny:<br>
+Jenny is a genius and also a genius programmer.<br>
+Muna:<br>
+Muna is really super cool and a super awesome programmer.<br>
+Cesar:<br>
+Cesar is a math wiz and a programming wiz.<br>
+Amrita: <br>
+Amrita is a former Cellist turned programmer. 
+
+    </h6>
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"

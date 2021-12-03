@@ -1,3 +1,4 @@
+
 /* 
 Credit: 
 https://www.w3schools.com/howto/howto_css_images_side_by_side.asp 
@@ -5,70 +6,68 @@ https://stackoverflow.com/questions/19414856/how-can-i-make-all-images-of-differ
 */
 
 img {
-    padding: 5px;
-  }
+  padding: 5px;
+}
 
 hr {
-    height: 1px;
-    background-color: rgb(224, 171, 171);
-    border: none;
+  height: 1px;
+  background-color: rgb(224, 171, 171);
+  border: none;
 }
 
 form {
-  padding: 15px;
-  border: 1px solid #666;
-  background: #fff;
-  display: none;
+padding: 15px;
+border: 1px solid #666;
+background: #fff;
+display: none;
 }
 
 .my-custom-row {
-    background-color: bisque;
+  background-color: bisque;
 }
 
 .login {
-    background-color: bisque;
-    text-align: center;
-    padding: 0;
-    overflow: hidden; 
+  background-color: bisque;
+  text-align: center;
+  padding: 0;
+  overflow: hidden; 
 }
 
-  
-  label {
-    display: block;
-    margin-bottom: 2px;
-  }
-  
-  .error-message {
-    color: #cc0033;
-    display: inline-block;
-    font-size: 12px;
-    line-height: 15px;
-    margin: 5px 0 0;
-    text-align: center;
-  }
 
-  .success-message {
-    color: #42972d;
-    display: inline-block;
-    font-size: 12px;
-    line-height: 15px;
-    margin: 5px 0 0;
-  }
-  
-  /* Error Styling */
-  
-  .error label {
-    color: #cc0033;
-  }
-  
-  .error input[type=text] {
-    background-color: #fce4e4;
-    border: 1px solid #cc0033;
-    outline: none;
-  }
-  
-  .error .error-message {
-    display: inline-block;
-  }
-  
-  
+label {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.error-message {
+  color: #cc0033;
+  display: inline-block;
+  font-size: 12px;
+  line-height: 15px;
+  margin: 5px 0 0;
+  text-align: center;
+}
+
+.success-message {
+  color: #42972d;
+  display: inline-block;
+  font-size: 12px;
+  line-height: 15px;
+  margin: 5px 0 0;
+}
+
+/* Error Styling */
+
+.error label {
+  color: #cc0033;
+}
+
+.error input[type=text] {
+  background-color: #fce4e4;
+  border: 1px solid #cc0033;
+  outline: none;
+}
+
+.error .error-message {
+  display: inline-block;
+}
