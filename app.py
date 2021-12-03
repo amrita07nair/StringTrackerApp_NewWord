@@ -24,11 +24,14 @@ load_dotenv(find_dotenv())
 
 app = flask.Flask(__name__, static_folder="./build/static")
 # Point SQLAlchemy to your Heroku database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL1")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = "I am a secret key"
-uri = os.getenv("DATABASE_URL1")
+uri = os.getenv("DATABASE_URL")
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+# rest of connection code using the connection string `uri`
 db = SQLAlchemy(app)
 
 # first connect Heroku Postgres to SQLAlchemy
@@ -89,7 +92,7 @@ class Instruments(db.Model):
 class Strings(db.Model):
     str_id = db.Column(db.Integer, primary_key=True)
     instr_id = db.Column(
-        db.Integer, db.ForeignKey("instruments.instr_id"), nullable=False
+        db.Integer, db.ForeignKey("instruments.instr_id"), unique=True, nullable=False
     )
     str_name = db.Column(db.String(120), nullable=False)
     str_cost = db.Column(db.Integer, nullable=False)
@@ -230,8 +233,27 @@ Code for String Squad's HTML:
 @app.route("/home")
 @login_required
 def home():
-    # TODO: add code here
-    return flask.render_template("home.html")
+    try:
+        curr_instr_name = (
+            Instruments.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .instr_name
+        )
+    except AttributeError:
+        curr_instr_name = ""
+
+    try:
+        curr_str_name = (
+            Strings.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .str_name
+        )
+    except AttributeError:
+        curr_str_name = ""
+
+    return flask.render_template(
+        "home.html", curr_instr_name=curr_instr_name, curr_str_name=curr_str_name
+    )
 
 
 @app.route("/database", methods=["GET"])
@@ -324,20 +346,32 @@ def database_post():
     )
 
 
-@app.route("/analytics")
+@app.route("/addsession", methods=["POST"])
 @login_required
-def analytics():
-    total_playtime = 13
-    avg_lifespan = 100
-    string_life = total_playtime / avg_lifespan
-    string_health = 100
-    # when you have played more than 30% of the string's anticipated lifespan
-    if string_life > 0.3:
-        string_health = 3
-    elif string_life > 0.10:
-        string_health = 2
-    else:
-        string_health = 1
+def addsession_post():
+    print("/addsession POST request received.")
+    playtime_mins = flask.request.form.get("playmins")
+
+    user_id = current_user.id
+
+    # get current string id
+    curr_instr_id = current_user.current_instr_id
+    try:
+        curr_string_id = Strings.query.filter_by(instr_id=curr_instr_id).first().str_id
+    except AttributeError:
+        curr_string_id = ""
+
+    # TODO: add in form validation
+    new_session = Sessions(
+        user_id=user_id,
+        instr_id=curr_instr_id,
+        string_id=curr_string_id,
+        playtime_mins=playtime_mins,
+        date="12022021",  # TODO: get actual date
+    )
+    print(f"adding new session: {new_session} to DB")
+    db.session.add(new_session)
+    db.session.commit()
 
     try:
         curr_instr_name = (
@@ -348,10 +382,81 @@ def analytics():
     except AttributeError:
         curr_instr_name = ""
 
+    try:
+        curr_str_name = (
+            Strings.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .str_name
+        )
+    except AttributeError:
+        curr_str_name = ""
+
+    return flask.render_template(
+        "home.html", curr_instr_name=curr_instr_name, curr_str_name=curr_str_name
+    )
+
+
+@app.route("/analytics")
+@login_required
+def analytics():
+    try:
+        curr_instr_name = (
+            Instruments.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .instr_name
+        )
+    except AttributeError:
+        curr_instr_name = ""
+
+    # get current string
+    curr_instr_id = current_user.current_instr_id
+    try:
+        curr_str = Strings.query.filter_by(instr_id=curr_instr_id).first()
+    except AttributeError:
+        curr_str = ""
+
+    # get the id, name, cost of the current string
+    try:
+        curr_str_id = curr_str.str_id
+        curr_str_name = curr_str.str_name
+        curr_str_cost = curr_str.str_cost
+    except AttributeError:
+        curr_str_id = ""
+        curr_str_name = ""
+        curr_str_cost = 0
+
+    # get all the sessions associated with our string
+    my_string_sessions = Sessions.query.filter_by(string_id=curr_str_id).all()
+
+    # TODO:  get total_playtime
+    total_playtime_mins = 0
+    for session in my_string_sessions:
+        total_playtime_mins = total_playtime_mins + session.playtime_mins
+
+    total_playtime_hrs = total_playtime_mins / 60
+
+    # TODO: Add this in for the color coding (string_health)
+    avg_lifespan = 100
+    string_life = 1 - (total_playtime_hrs / avg_lifespan)
+    string_health = 100
+    # when you have played more than 30% of the string's anticipated lifespan
+    if string_life > 0.3:
+        string_health = 3
+    elif string_life > 0.10:
+        string_health = 2
+    else:
+        string_health = 1
+
+    # get cost per hour
+    avg_cost_hr = curr_str_cost / total_playtime_hrs
+
     return flask.render_template(
         "analytics.html",
         string_health=string_health,
         current_instr_name=curr_instr_name,
+        current_str_name=curr_str_name,
+        total_playtime_hrs=total_playtime_hrs,
+        avg_cost_hr=avg_cost_hr,
     )
 
 
@@ -478,7 +583,7 @@ if __name__ == "__main__":
     app.run(
         # debug = True
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8229")),
+        port=int(os.getenv("PORT", "8230")),
         debug=True,
     )
 # up til here username and routing works. time to implement password from here. HTML hasnt broken anything

@@ -15,7 +15,28 @@
     <a href="{{ url_for('database') }}">Database</a>
     <a href="{{ url_for('analytics') }}">Analytics</a>
     <a href="{{ url_for('settings') }}">Settings</a>
-    <a href="{{ url_for('logout') }}">Logout</a>
+    <a href="{{ url_for('logout') }}">Logout</a><br>
+    <br>
+
+    Current Instrument Name:<br>
+    {% if curr_instr_name == "" %}
+    You don't have any instruments! Please add one.<br>
+    {% else %}
+    {{curr_instr_name}}<br>
+    {% endif %}
+
+    Current String Name:<br>
+    {% if curr_str_name == "" %}
+    You don't have any strings attached to your instrument! Please add one.<br>
+    {% else %}
+    {{curr_str_name}}<br>
+    {% endif %}
+
+    <p>Add a session for the current instrument and strings (in minutes):</p>
+    <form method="POST" action="/addsession">
+        <input type="text" name="playmins" placeholder="Playtime (minutes)"><br>
+        <input type="submit">
+    </form>
 
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
