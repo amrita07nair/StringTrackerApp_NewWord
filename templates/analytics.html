@@ -14,7 +14,29 @@
     <a href="{{ url_for('home') }}">Home</a>
     <a href="{{ url_for('database') }}">Database</a>
     <h1>Analytics</h1>
-    <a href="{{ url_for('settings') }}">Settings</a>
+
+    <h2>Current Instrument:</h2>
+    <h3>{{current_instr_name}}</h3>
+    <h4>Current Strings:</h4>
+    <h5>{{current_str_name}}</h5>
+
+    <h6>Analytics for current section:</h6>
+    <h7>Total Playtime (hours): {{total_playtime_hrs}}</h7>
+    <h9>Average Cost Per Hour: ${{avg_cost_hr}}</h9>
+    <p id="h10">String Health</p>
+    <script>
+        var a = "{{string_health}}";
+        if (a == 3) {
+            document.getElementById("h10").style.color = "green";
+        }
+        if (a == 2) {
+            document.getElementById("h10").style.color = "yellow";
+        }
+        if (a == 1) {
+            document.getElementById("h10").style.color = "red";
+        }
+    </script>
+
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
