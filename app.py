@@ -25,11 +25,11 @@ load_dotenv(find_dotenv())
 
 app = flask.Flask(__name__, static_folder="./build/static")
 # Point SQLAlchemy to your Heroku database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL1")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = "I am a secret key"
-uri = os.getenv("DATABASE_URL1")
+uri = os.getenv("DATABASE_URL")
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 # rest of connection code using the connection string `uri`
