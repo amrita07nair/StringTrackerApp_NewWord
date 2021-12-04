@@ -1,4 +1,4 @@
-
+# http://string-tracker.herokuapp.com
 
 # Purpose
     The purpose of our app is to help string musicians know when to change their strings on their instrument. The last thing a musiician wants is to be playing and a string breaks because it is very worn out. We designed an app that allows users to sign up/ login to a personal account and save their instruments and what strings are attached to that instrument. Once they have instruments and strings saved they are able to record how much time they play that instrument. This will then save your total playtime on that set of strings to our databes. You will then be able to see how much longer you will be able to use this set of strings before you are in risk of a string breaking.
