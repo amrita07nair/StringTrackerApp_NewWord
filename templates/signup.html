@@ -22,15 +22,7 @@
       
                     <h2 class="fw-bold mb-2 text-uppercase">Signup</h2>
                     <p class="text-white-50 mb-5">Please enter your email, username, and password!</p>
-                    {% with messages = get_flashed_messages() %}
-                        {% if messages %}
-                            <ul id="flashes" class=flashes>
-                        {% for message in messages %}
-                             <li>{{ message }}</li>
-                        {% endfor %}
-                            </ul>
-                        {% endif %}
-                    {% endwith %}
+                    {{signup_flash}}
                     <form method="POST" action="/signup">
                     <div class="form-outline form-white mb-4">
                         <input class="input is-large" type="text" name="email" placeholder="Email" autofocus="">
