@@ -11,33 +11,77 @@
 </head>
 
 <body>
-    <a href="{{ url_for('home') }}">Home</a>
-    <a href="{{ url_for('database') }}">Database</a>
-    <h1>Analytics</h1>
+    <header>
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <a class="navbar-brand" href="#">String Tracker</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="navbarCollapse" class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}">
+                            Home
+                            <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('database') }}">Database</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{{ url_for('analytics') }}">Analytics</a>
+                    </li>
+                </ul>
+                <a class="nav-link disabled" href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </nav>
+    </header>
 
-    <h2>Current Instrument:</h2>
-    <h3>{{current_instr_name}}</h3>
-    <h4>Current Strings:</h4>
-    <h5>{{current_str_name}}</h5>
+    <main class="container" role="main">
+        <br>
+        <center>
+            <h1 class="mt-5">Analytics for the Current String</h1>
+        </center>
+        <p class="lead">
+            <center>
+                <b>Current Instrument Name</b><br>
+                {% if current_instr_name == "" %}
+                You don't have any instruments! Please add one.<br>
+                {% else %}
+                {{current_instr_name}}<br>
+                {% endif %}
 
-    <h6>Analytics for current section:</h6>
-    <h7>Total Playtime (hours): {{total_playtime_hrs}}</h7>
-    <h9>Average Cost Per Hour: ${{avg_cost_hr}}</h9>
-    <p id="h10">String Health</p>
-    <script>
-        var a = "{{string_health}}";
-        if (a == 3) {
-            document.getElementById("h10").style.color = "green";
-        }
-        if (a == 2) {
-            document.getElementById("h10").style.color = "yellow";
-        }
-        if (a == 1) {
-            document.getElementById("h10").style.color = "red";
-        }
-    </script>
+                <b>Current String Name</b><br>
+                {% if current_str_name == "" %}
+                You don't have any strings attached to your instrument! Please add one.<br>
+                {% else %}
+                <p id="h10">{{current_str_name}}</p>
+                <br>
+                {% endif %}
+            </center>
+        </p>
+        <center>
+            <b>Total Playtime (hours):</b> <br>{{total_playtime_hrs}}<br>
+            <b>Average Cost Per Hour:</b> <br>${{avg_cost_hr}}<br>
 
-    <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
+        </center>
+        <script>
+            var a = "{{string_health}}";
+            if (a == 3) {
+                document.getElementById("h10").style.color = "green";
+            }
+            if (a == 2) {
+                document.getElementById("h10").style.color = "yellow";
+            }
+            if (a == 1) {
+                document.getElementById("h10").style.color = "red";
+            }
+        </script>
+
+    </main>
+
+
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"

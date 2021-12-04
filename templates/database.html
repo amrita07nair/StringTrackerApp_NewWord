@@ -11,86 +11,140 @@
 </head>
 
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-6">
-                <a href="{{ url_for('home') }}">Home</a><br>
-                Database<br>
-                <a href="{{ url_for('analytics') }}">Analytics</a><br>
+    <header>
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <a class="navbar-brand" href="#">String Tracker</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="navbarCollapse" class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}">
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{{ url_for('database') }}">Database <span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('analytics') }}">Analytics</a>
+                    </li>
+                </ul>
+                <a class="nav-link disabled" href="{{ url_for('logout') }}">Logout</a>
             </div>
-            <div class="col-lg-6">
+        </nav>
+    </header>
+
+    <main class="container" role="main">
+        <br>
+        <center>
+            <h1 class="mt-5">Configure Strings and Instruments</h1>
+        </center>
+        <center>
+            <p class="lead">Here is where you can add your instruments and strings. <br> You can also change which
+                instrument
+                and
+                string combo is your current selection. <br>This current selection will be the choice that the session
+                recording
+                in the homepage uses!</p>
+        </center>
+        <p class="lead">
+            <center>
+                <b>Current Instrument Name</b><br>
+                {% if curr_instr_name == "" %}
+                You don't have any instruments! Please add one.<br>
+                {% else %}
+                {{curr_instr_name}}<br>
+                {% endif %}
+            </center>
+        </p>
+        <center>
+            <p class="lead">
                 <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample"
                     aria-expanded="false" aria-controls="collapseExample">
                     Add New Instrument
                 </button>
 
-                <div class="collapse" id="collapseExample">
-                    <form method="POST" action="/database">
-                        <b>Instrument Type:</b>
-                        <select name="instr_type">
-                            <option value="banjo">Banjo</option>
-                            <option value="guitar">Guitar</option>
-                            <option value="electric_bass">Electric Bass</option>
-                            <option value="violin">Violin</option>
-                            <option value="viola">Viola</option>
-                            <option value="cello">Cello</option>
-                            <option value="double_bass">Double Bass</option>
-                            <option value="mandolin">Mandolin</option>
-                            <option value="ukulele">Ukulele</option>
-                            <option value="harp">Harp</option>
-                            <option value="erhu">Er Hu</option>
-                            <option value="guzheng">Gu Zheng</option>
-                        </select><br>
-                        <b>Name:</b> <input type="text" name="instr_name">
-                        <br><br>
-                        <input type="submit" value="Submit">
-                    </form>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6">
-                        <button class="btn btn-primary" type="button" data-toggle="collapse"
-                            data-target="#collapseButton" aria-expanded="false" aria-controls="collapseButton">
-                            Add New Strings
-                        </button>
-                        <div class="collapse" id="collapseButton">
-                            <form method="POST" action="add_strings">
-                                <b>Name:</b> <input type="text" name="str_name"><br>
-                                <b>Cost:</b> <input type="text" name="str_cost">
-                                <br><br>
-                                <input type="submit" value="Submit">
-                            </form>
-
-                        </div>
-                    </div>
-
-                </div>
-                <br>
-                {{curr_instr_name}}
-                <form method="POST" action="/changeinstr">
-                    <label for="instruments">Change Instruments:</label>
-                    <select id="instruments" name="instruments">
-                        {% for i in range(0, instr_names_len) %}
-                        <option value="{{instr_names[i]}}">{{instr_names[i]}}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="submit">
-                </form>
-                {{curr_str_name}}
-                <form method="POST" action="/change_strings">
-                    <label for="strings">Change Instruments Strings:</label>
-                    <select id="strings" name="strings">
-                        {% for i in range(0, str_names_len) %}
-                        <option value="{{str_names[i]}}">{{str_names[i]}}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="submit">
+            <div class="collapse" id="collapseExample">
+                <form method="POST" action="/database">
+                    <b>Instrument Type:</b>
+                    <select name="instr_type">
+                        <option value="banjo">Banjo</option>
+                        <option value="guitar">Guitar</option>
+                        <option value="electric_bass">Electric Bass</option>
+                        <option value="violin">Violin</option>
+                        <option value="viola">Viola</option>
+                        <option value="cello">Cello</option>
+                        <option value="double_bass">Double Bass</option>
+                        <option value="mandolin">Mandolin</option>
+                        <option value="ukulele">Ukulele</option>
+                        <option value="harp">Harp</option>
+                        <option value="erhu">Er Hu</option>
+                        <option value="guzheng">Gu Zheng</option>
+                    </select><br>
+                    <b>Name:</b> <input type="text" name="instr_name">
+                    <br><br>
+                    <input type="submit" value="Submit">
                 </form>
             </div>
-        </div>
-    </div>
+            </p>
+
+            <form method="POST" action="/changeinstr">
+                <label for="instruments">Change Instruments:</label>
+                <select id="instruments" name="instruments">
+                    {% for i in range(0, instr_names_len) %}
+                    <option value="{{instr_names[i]}}">{{instr_names[i]}}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit">
+            </form>
+
+            <p class="lead">
+                <center>
+                    <b>Current String Name</b><br>
+                    {% if curr_str_name == "" %}
+                    You don't have any strings attached to your instrument! Please add one.<br>
+                    {% else %}
+                    {{curr_str_name}}<br>
+                    {% endif %}
+                </center>
+            </p>
+            <p class="lead">
+                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseButton"
+                    aria-expanded="false" aria-controls="collapseButton">
+                    Add New Strings
+                </button><br>
+            <div class="collapse" id="collapseButton">
+                <form method="POST" action="add_strings">
+                    <b>Name:</b> <input type="text" name="str_name"><br>
+                    <b>Cost:</b> <input type="text" name="str_cost">
+                    <br><br>
+                    <input type="submit" value="Submit">
+                </form>
+
+            </div>
+            </p>
+            <br>
+
+
+            <form method="POST" action="/change_strings">
+                <label for="strings">Change Instruments Strings:</label>
+                <select id="strings" name="strings">
+                    {% for i in range(0, str_names_len) %}
+                    <option value="{{str_names[i]}}">{{str_names[i]}}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit">
+            </form>
+            </p>
+        </center>
+    </main>
+
 
     <!-- Latest compiled and minified JavaScript for Bootstrap CDN -->
-
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>

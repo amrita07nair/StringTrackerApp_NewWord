@@ -28,7 +28,7 @@ app = flask.Flask(__name__, static_folder="./build/static")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = "I am a secret key"
+app.secret_key = os.getenv("SECRET_KEY")
 uri = os.getenv("DATABASE_URL")
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
@@ -93,7 +93,7 @@ class Instruments(db.Model):
 class Strings(db.Model):
     str_id = db.Column(db.Integer, primary_key=True)
     instr_id = db.Column(
-        db.Integer, db.ForeignKey("instruments.instr_id"), unique=True, nullable=False
+        db.Integer, db.ForeignKey("instruments.instr_id"), nullable=False
     )
     str_name = db.Column(db.String(120), nullable=False)
     str_cost = db.Column(db.Integer, nullable=False)
@@ -183,19 +183,23 @@ def signup_post():
     email = flask.request.form.get("email")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
-    if email=="" or username=="" or password=="": #if the form fields are empty
+    if email == "" or username == "" or password == "":  # if the form fields are empty
         flask.flash("Please fill in all account information.")
         return flask.redirect(flask.url_for("signup"))
-    
-    password_safe = password_meet_requirements(password) #does password meet requrements? T or F?
-    #email_ending_valid = check_email(email)
+
+    password_safe = password_meet_requirements(
+        password
+    )  # does password meet requrements? T or F?
+    # email_ending_valid = check_email(email)
     email_validator_status = email_validator(email)
 
-    if password_safe and email_validator_status=='valid':
+    if password_safe and email_validator_status == "valid":
         user_byusername = get_user_by_username(username)
         user_byemail = get_user_by_email(email)
         if user_byusername:
-            flask.flash("Username taken. Please pick another username, or login with your existing account.")
+            flask.flash(
+                "Username taken. Please pick another username, or login with your existing account."
+            )
             return flask.redirect(flask.url_for("signup"))
         elif user_byemail:
             flask.flash("Email taken with account. Login with your existing account.")
@@ -210,15 +214,21 @@ def signup_post():
             return flask.redirect(flask.url_for("login"))
     else:
         if password_safe == False:
-            flask.flash("Password not secure enough. Password must meet the following requirements:\n1. At least 1 special character:  ~`! @#$%^&*()_-+={[}]|\:;\"'<,>.?/ \n2. Must conatin both uppercase and lowercase letters.\n3. Must be 8 characters or longer.\n4. Must contain at least one number 0-9.")
+            flask.flash(
+                "Password not secure enough. Password must meet the following requirements:\n1. At least 1 special character:  ~`! @#$%^&*()_-+={[}]|\:;\"'<,>.?/ \n2. Must conatin both uppercase and lowercase letters.\n3. Must be 8 characters or longer.\n4. Must contain at least one number 0-9."
+            )
             return flask.redirect(flask.url_for("signup"))
-        elif email_validator_status == 'invalid':
-            flask.flash("Your email could not be verified. Please enter a valid email address.")
+        elif email_validator_status == "invalid":
+            flask.flash(
+                "Your email could not be verified. Please enter a valid email address."
+            )
             return flask.redirect(flask.url_for("signup"))
+
 
 @app.route("/login")
 def login():
     return flask.render_template("login.html")
+
 
 @app.route("/login", methods=["POST"])
 def login_post():
@@ -231,22 +241,27 @@ def login_post():
         print(user)
         login_user(user)
         print("DO WE GET HERE")
-        #return flask.render_template("home.html") #manual patch to get to home, but anywhere @login_required is, it wont work
+        # return flask.render_template("home.html") #manual patch to get to home, but anywhere @login_required is, it wont work
         return flask.redirect(flask.url_for("home"))
     else:
         flask.flash("Invalid email/password. Retry or Sigin Up.")
         return flask.redirect(flask.url_for("login"))
 
+
 """
 NEW STUFF
 """
 
+
 def get_user_by_username(username):
     user = User.query.filter_by(username=username).first()
     return user
+
+
 def get_user_by_email(email):
     user = User.query.filter_by(email=email).first()
     return user
+
 
 def user_login_success(user, password):
     if user and user.verify_password(password):
@@ -256,42 +271,102 @@ def user_login_success(user, password):
         print("USER UNABLE TO BE VERIFIED")
         return False
 
+
 def password_meet_requirements(password):
     contains_special_char = does_contains_special_char(password)
     contains_number = does_contains_number(password)
     mixed_case = is_mixed_case(password)
-    if len(password)>=8 and contains_special_char and contains_number and mixed_case:
+    if len(password) >= 8 and contains_special_char and contains_number and mixed_case:
         return True
     else:
         return False
+
+
 def does_contains_special_char(password):
-    if ("!" in password) or ("@" in password) or ("~" in password) or ("#" in password) or ("$" in password) or ("%" in password) or ("^" in password) or ("^" in password) or ("&" in password) or ("*" in password) or ("(" in password) or (")" in password) or ("_" in password) or("-" in password) or ("+" in password) or ("=" in password) or ("{" in password) or ("}" in password) or ("[" in password) or ("]" in password) or (":" in password) or (";" in password) or ("'" in password) or ("\"" in password) or ("<" in password) or(">" in password) or ("," in password) or ("." in password) or ("?" in password) or ("/" in password):
+    if (
+        ("!" in password)
+        or ("@" in password)
+        or ("~" in password)
+        or ("#" in password)
+        or ("$" in password)
+        or ("%" in password)
+        or ("^" in password)
+        or ("^" in password)
+        or ("&" in password)
+        or ("*" in password)
+        or ("(" in password)
+        or (")" in password)
+        or ("_" in password)
+        or ("-" in password)
+        or ("+" in password)
+        or ("=" in password)
+        or ("{" in password)
+        or ("}" in password)
+        or ("[" in password)
+        or ("]" in password)
+        or (":" in password)
+        or (";" in password)
+        or ("'" in password)
+        or ('"' in password)
+        or ("<" in password)
+        or (">" in password)
+        or ("," in password)
+        or ("." in password)
+        or ("?" in password)
+        or ("/" in password)
+    ):
         return True
     else:
         return False
+
+
 def does_contains_number(password):
-    if ("0" in password) or ("1" in password) or ("2" in password) or ("3" in password) or ("4" in password) or ("5" in password) or ("6" in password) or ("7" in password) or ("8" in password) or ("9" in password):
+    if (
+        ("0" in password)
+        or ("1" in password)
+        or ("2" in password)
+        or ("3" in password)
+        or ("4" in password)
+        or ("5" in password)
+        or ("6" in password)
+        or ("7" in password)
+        or ("8" in password)
+        or ("9" in password)
+    ):
         return True
     else:
         return False
-def is_mixed_case(password): #are there upper and lowercase letters? https://www.kite.com/python/answers/how-to-check-if-a-string-is-upper,-lower,-or-mixed-case-in-python
+
+
+def is_mixed_case(
+    password,
+):  # are there upper and lowercase letters? https://www.kite.com/python/answers/how-to-check-if-a-string-is-upper,-lower,-or-mixed-case-in-python
     if password.islower() or password.isupper():
         return False
     elif not password.islower() and not password.isupper():
         return True
     else:
         return False
+
+
 def check_email(email):
-    if email.endswith("@gmail.com") or email.endswith("@yahoo.com") or email.endswith("@aol.com") or email.endswith("@hotmail.com"):
+    if (
+        email.endswith("@gmail.com")
+        or email.endswith("@yahoo.com")
+        or email.endswith("@aol.com")
+        or email.endswith("@hotmail.com")
+    ):
         return True
     else:
         return False
+
+
 def email_validator(email):
     email_valid_status = ""
     response = requests.get(
-    "https://isitarealemail.com/api/email/validate",
-    params = {'email': email})
-    status = response.json()['status']
+        "https://isitarealemail.com/api/email/validate", params={"email": email}
+    )
+    status = response.json()["status"]
     if status == "valid":
         email_valid_status = "valid"
     elif status == "invalid":
@@ -299,6 +374,7 @@ def email_validator(email):
     else:
         email_valid_status = "invalid"
     return email_valid_status
+
 
 @app.route("/")
 def main():
@@ -363,6 +439,17 @@ def database():
         )
     except AttributeError:
         curr_instr_name = ""
+
+    # get current string name
+    try:
+        curr_str_name = (
+            Strings.query.filter_by(instr_id=current_user.current_instr_id)
+            .first()
+            .str_name
+        )
+    except AttributeError:
+        curr_str_name = ""
+
     return flask.render_template(
         "database.html",
         curr_instr_name=curr_instr_name,
@@ -370,6 +457,7 @@ def database():
         instr_names_len=instr_names_len,
         str_names=str_names,
         str_names_len=str_names_len,
+        curr_str_name=curr_str_name,
     )
 
 
@@ -512,16 +600,16 @@ def analytics():
         curr_str_cost = 0
 
     # get all the sessions associated with our string
-    
+
     print("do we get a string?????")
     print(curr_str)
 
     if curr_str == None:
-        string_health=3,
-        current_instr_name=""
-        current_str_name=""
-        total_playtime_hrs=0
-        avg_cost_hr=0
+        string_health = (3,)
+        current_instr_name = ""
+        current_str_name = ""
+        total_playtime_hrs = 0
+        avg_cost_hr = 0
     else:
         print("entering else")
         my_string_sessions = Sessions.query.filter_by(string_id=curr_str_id).all()
@@ -549,6 +637,9 @@ def analytics():
             avg_cost_hr = 0
         else:
             avg_cost_hr = curr_str_cost / total_playtime_hrs
+
+        total_playtime_hrs = round(total_playtime_hrs, 2)
+        avg_cost_hr = round(avg_cost_hr, 2)
 
     return flask.render_template(
         "analytics.html",
