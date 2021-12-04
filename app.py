@@ -28,7 +28,7 @@ app = flask.Flask(__name__, static_folder="./build/static")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL1")
 # Gets rid of a warning
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = "I am a secret key"
+app.secret_key = os.getenv("SECRET_KEY")
 uri = os.getenv("DATABASE_URL1")
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
@@ -190,7 +190,9 @@ def signup_post():
     password_safe = password_meet_requirements(password) #does password meet requrements? T or F?
     #email_ending_valid = check_email(email)
     email_validator_status = email_validator(email)
-
+    print("PASSWORD TRIALS")
+    print(password_safe)
+    print(email_validator_status)
     if password_safe and email_validator_status=='valid':
         user_byusername = get_user_by_username(username)
         user_byemail = get_user_by_email(email)
@@ -281,11 +283,11 @@ def is_mixed_case(password): #are there upper and lowercase letters? https://www
         return True
     else:
         return False
-def check_email(email):
-    if email.endswith("@gmail.com") or email.endswith("@yahoo.com") or email.endswith("@aol.com") or email.endswith("@hotmail.com"):
-        return True
-    else:
-        return False
+#def check_email(email):
+ #   if email.endswith("@gmail.com") or email.endswith("@yahoo.com") or email.endswith("@aol.com") or email.endswith("@hotmail.com"):
+  #      return True
+  #  else:
+   #     return False
 def email_validator(email):
     email_valid_status = ""
     response = requests.get(
