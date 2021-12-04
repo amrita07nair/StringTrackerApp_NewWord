@@ -185,7 +185,7 @@ def signup_post():
     password = flask.request.form.get("password")
     if email == "" or username == "" or password == "":  # if the form fields are empty
         signup_flash = Markup("Please fill in all account information.")
-        return flask.render_template("signup.html", signup_flash = signup_flash)
+        return flask.render_template("signup.html", signup_flash=signup_flash)
 
     password_safe = password_meet_requirements(
         password
@@ -201,12 +201,16 @@ def signup_post():
         user_byusername = get_user_by_username(username)
         user_byemail = get_user_by_email(email)
         if user_byusername:
-            signup_flash = Markup("Username taken. Please pick another username, or login with your existing account.")
-            return flask.render_template("signup.html", signup_flash = signup_flash)
+            signup_flash = Markup(
+                "Username taken. Please pick another username, or login with your existing account."
+            )
+            return flask.render_template("signup.html", signup_flash=signup_flash)
 
         elif user_byemail:
-            signup_flash = Markup("Email taken with account. Login with your existing account.")
-            return flask.render_template("signup.html", signup_flash = signup_flash)
+            signup_flash = Markup(
+                "Email taken with account. Login with your existing account."
+            )
+            return flask.render_template("signup.html", signup_flash=signup_flash)
 
         else:
             user = User(email=email, username=username, password=password)
@@ -215,11 +219,15 @@ def signup_post():
             return flask.redirect(flask.url_for("login"))
     else:
         if password_safe == False:
-            signup_flash = Markup("Password not secure enough.<br>Password must meet the following requirements:<br>1. At least 1 special character:  ~`! @#$%^&*()_-+={[}]|\:;\"'<,>.?/ <br>2. Must contain both uppercase and lowercase letters.<br>3. Must be 8 characters or longer.<br>4. Must contain at least one number 0-9.")
-            return flask.render_template("signup.html", signup_flash = signup_flash)
+            signup_flash = Markup(
+                "Password not secure enough.<br>Password must meet the following requirements:<br>1. At least 1 special character:  ~`! @#$%^&*()_-+={[}]|\:;\"'<,>.?/ <br>2. Must contain both uppercase and lowercase letters.<br>3. Must be 8 characters or longer.<br>4. Must contain at least one number 0-9."
+            )
+            return flask.render_template("signup.html", signup_flash=signup_flash)
         elif email_validator_status == "invalid":
-            signup_flash = Markup("Your email could not be verified. Please enter a valid email address.")
-            return flask.render_template("signup.html", signup_flash = signup_flash)
+            signup_flash = Markup(
+                "Your email could not be verified. Please enter a valid email address."
+            )
+            return flask.render_template("signup.html", signup_flash=signup_flash)
 
 
 @app.route("/login")
@@ -458,6 +466,12 @@ def database():
     )
 
 
+def validate_new_instr_form(instr_name, instr_type):
+    if instr_name != "" and instr_type != "":
+        return True
+    return False
+
+
 @app.route("/database", methods=["POST"])
 @login_required
 def database_post():
@@ -466,7 +480,14 @@ def database_post():
     instr_name = flask.request.form.get("instr_name")
     compound_name = getCompoundName(instr_name, instr_type)
     user_id = current_user.id
+
     # TODO: Add in form validation
+    is_valid = validate_new_instr_form(instr_name, instr_type)
+
+    if not is_valid:
+        # TODO: Return to database.HTML and don't add to DB
+        print("Implement this")
+
     new_instr = Instruments(
         compound_name=compound_name,
         user_id=user_id,

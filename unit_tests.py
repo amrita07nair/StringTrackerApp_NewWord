@@ -6,9 +6,9 @@ from app import (
     user_login_success,
     get_user_by_email,
     get_user_by_username,
-    get_compound_name,
-    get_current_instr_name,
+    getCompoundName,
     validate_new_instr_form,
+    does_contains_special_char,
 )
 
 
@@ -64,16 +64,13 @@ class UnitTests(unittest.TestCase):
     def test_get_compound_name(self):
         instrument_name = "Les Paul"
         instrument_type = "Guitar"
-        compound_name = get_compound_name(instrument_name, instrument_type)
+        compound_name = getCompoundName(instrument_name, instrument_type)
         self.assertEqual(compound_name, "Les Paul - Guitar")
 
-    def test_get_current_instr_name(self):
-        with patch("app.User") as mocked_user_query:
-            mocked_user_query = self.get_mocked_db_user_entries
-            with patch("app.Instruments") as mocked_instr_query:
-                mocked_instr_query = self.get_mocked_db_instrument_entries
-                current_instr_name = get_current_instr_name()
-                self.assertIsNotNone(current_instr_name)
+    def test_does_contain_special_char(self):
+        test = "!"
+        expectTrue = does_contains_special_char(test)
+        self.assertTrue(expectTrue)
 
     def test_validate_new_instr_form(self):
         is_valid = validate_new_instr_form("", "Guitar")
