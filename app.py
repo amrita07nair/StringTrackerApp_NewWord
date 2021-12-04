@@ -9,6 +9,7 @@ import time
 import flask
 
 from dotenv import load_dotenv, find_dotenv
+from flask import Markup
 from flask_login import logout_user
 from flask_login import (
     login_user,
@@ -184,45 +185,42 @@ def signup_post():
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
     if email == "" or username == "" or password == "":  # if the form fields are empty
-        flask.flash("Please fill in all account information.")
-        return flask.redirect(flask.url_for("signup"))
+        signup_flash = Markup("Please fill in all account information.")
+        return flask.render_template("signup.html", signup_flash = signup_flash)
 
     password_safe = password_meet_requirements(
         password
     )  # does password meet requrements? T or F?
     # email_ending_valid = check_email(email)
     email_validator_status = email_validator(email)
+    print("PASSWORD TRIALS!!!")
+    print(password_safe)
+    print(email_validator_status)
+    print(password)
 
     if password_safe and email_validator_status == "valid":
         user_byusername = get_user_by_username(username)
         user_byemail = get_user_by_email(email)
         if user_byusername:
-            flask.flash(
-                "Username taken. Please pick another username, or login with your existing account."
-            )
-            return flask.redirect(flask.url_for("signup"))
+            signup_flash = Markup("Username taken. Please pick another username, or login with your existing account.")
+            return flask.render_template("signup.html", signup_flash = signup_flash)
+
         elif user_byemail:
-            flask.flash("Email taken with account. Login with your existing account.")
-            return flask.redirect(flask.url_for("signup"))
+            signup_flash = Markup("Email taken with account. Login with your existing account.")
+            return flask.render_template("signup.html", signup_flash = signup_flash)
+
         else:
             user = User(email=email, username=username, password=password)
             db.session.add(user)
             db.session.commit()
-            flask.flash("Registered Successfully! Redirecting to login.")
-            flask.render_template("signup.html")
-            time.sleep(2)
             return flask.redirect(flask.url_for("login"))
     else:
         if password_safe == False:
-            flask.flash(
-                "Password not secure enough. Password must meet the following requirements:\n1. At least 1 special character:  ~`! @#$%^&*()_-+={[}]|\:;\"'<,>.?/ \n2. Must conatin both uppercase and lowercase letters.\n3. Must be 8 characters or longer.\n4. Must contain at least one number 0-9."
-            )
-            return flask.redirect(flask.url_for("signup"))
+            signup_flash = Markup("Password not secure enough.<br>Password must meet the following requirements:<br>1. At least 1 special character:  ~`! @#$%^&*()_-+={[}]|\:;\"'<,>.?/ <br>2. Must contain both uppercase and lowercase letters.<br>3. Must be 8 characters or longer.<br>4. Must contain at least one number 0-9.")
+            return flask.render_template("signup.html", signup_flash = signup_flash)
         elif email_validator_status == "invalid":
-            flask.flash(
-                "Your email could not be verified. Please enter a valid email address."
-            )
-            return flask.redirect(flask.url_for("signup"))
+            signup_flash = Markup("Your email could not be verified. Please enter a valid email address.")
+            return flask.render_template("signup.html", signup_flash = signup_flash)
 
 
 @app.route("/login")
