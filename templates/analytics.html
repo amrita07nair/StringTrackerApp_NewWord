@@ -20,7 +20,7 @@
             </button>
             <div id="navbarCollapse" class="collapse navbar-collapse">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
+                    <li class="nav-item active">
                         <a class="nav-link" href="{{ url_for('home') }}">
                             Home
                             <span class="sr-only">(current)</span>
@@ -29,8 +29,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('database') }}">Database</a>
                     </li>
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('analytics') }}">Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
                     </li>
                 </ul>
                 <a class="nav-link disabled" href="{{ url_for('logout') }}">Logout</a>

@@ -4,6 +4,7 @@ Flask app logic for P1M3
 # pylint: disable=no-member
 # pylint: disable=too-few-public-methods
 import os
+from flask_login.utils import _get_user
 import requests
 import time
 import flask
@@ -20,6 +21,7 @@ from flask_login import (
 )
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import update
 
 load_dotenv(find_dotenv())
 
@@ -786,6 +788,50 @@ def change_strings():
         instr_names=instr_names,
         instr_names_len=instr_names_len,
     )
+
+@app.route("/profile")
+@login_required
+def profile():
+    
+    curr_username = User.get_username(current_user)
+    curr_password = User.get_password(current_user)
+    curr_email = User.get_email(current_user)
+
+    return flask.render_template("profile.html", curr_username = curr_username, curr_email = curr_email, curr_password = curr_password)
+
+@app.route("/changePassword", methods = ["POST"])
+@login_required
+def changePassword():
+    curr_username = User.get_username(current_user)
+    curr_password = User.get_password(current_user)
+    curr_email = User.get_email(current_user)
+
+    curr_pass = flask.request.form.get("curr_pass")
+    new_pass = flask.request.form.get("new_pass")
+    new_pass_confirm = flask.request.form.get("new_pass_confirm")
+    print(curr_pass)
+    print(new_pass)
+    print(new_pass_confirm)
+    print('HERE')
+
+    new_pass_confirm_safe = password_meet_requirements(
+        new_pass_confirm
+    )
+    new_pass_safe = password_meet_requirements(
+        new_pass
+    )
+
+    update_statement = User.update()\
+                       .where(User.c.username == curr_username)\
+                       .values(password = new_pass)
+    print(update_statement)
+
+    #if (new_pass_safe and new_pass_confirm_safe) and new_pass == new_pass_confirm:
+       
+    
+    return flask.render_template("profile.html", curr_username = curr_username, curr_email = curr_email, curr_password = curr_password)
+
+
 
 
 if __name__ == "__main__":
