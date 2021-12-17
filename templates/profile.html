@@ -52,7 +52,8 @@
                     <h5 class="title">{{curr_email}}</h5>
                     <p></p>
                 </div>
-
+                {{signup_flash}}
+                <p></p>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#exampleModalCenter">
                     Change Password
                   </button>
@@ -78,7 +79,7 @@
                                 <div class="form-outline form-white mb-4">
                                     <input class="input is-large" type="password" name="new_pass_confirm" placeholder="Confirm New Password" autofocus="">
                                 </div>
-                                <button class="btn btn-secondary" type="submit">Signup</button>
+                                <button class="btn btn-secondary" data-toggle="popover" data-content="And here's some amazing content. It's very engaging. Right?" type="submit">Submit</button>
                             </form>
                         </div>
                         <div class="modal-footer">
@@ -87,7 +88,6 @@
                       </div>
                     </div>
                   </div>
-
             </center>
     </header>
 

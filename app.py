@@ -78,6 +78,9 @@ class User(UserMixin, db.Model):
 
         return self.password
 
+    def reset_password(self, password):
+        return generate_password_hash(password)
+
     def verify_password(self, password):
         return check_password_hash(self.password, password)
 
@@ -142,6 +145,10 @@ db.create_all()
 login_manager = LoginManager()
 login_manager.login_view = "login"
 login_manager.init_app(app)
+
+
+def set_password(self):
+    return generate_password_hash(self.password)
 
 
 @login_manager.user_loader
@@ -251,6 +258,7 @@ def login_post():
         # return flask.render_template("home.html") #manual patch to get to home, but anywhere @login_required is, it wont work
         return flask.redirect(flask.url_for("home"))
     else:
+        print()
         flask.flash("Invalid email/password. Retry or Sigin Up.")
         return flask.redirect(flask.url_for("login"))
 
@@ -796,6 +804,7 @@ def profile():
     curr_username = User.get_username(current_user)
     curr_password = User.get_password(current_user)
     curr_email = User.get_email(current_user)
+    print(curr_password)
 
     return flask.render_template("profile.html", curr_username = curr_username, curr_email = curr_email, curr_password = curr_password)
 
@@ -805,14 +814,17 @@ def changePassword():
     curr_username = User.get_username(current_user)
     curr_password = User.get_password(current_user)
     curr_email = User.get_email(current_user)
+    print('CURRENT')
+    print(curr_password)
+
 
     curr_pass = flask.request.form.get("curr_pass")
     new_pass = flask.request.form.get("new_pass")
     new_pass_confirm = flask.request.form.get("new_pass_confirm")
+    print("CURR")
     print(curr_pass)
     print(new_pass)
     print(new_pass_confirm)
-    print('HERE')
 
     new_pass_confirm_safe = password_meet_requirements(
         new_pass_confirm
@@ -820,16 +832,19 @@ def changePassword():
     new_pass_safe = password_meet_requirements(
         new_pass
     )
-
-    update_statement = User.update()\
-                       .where(User.c.username == curr_username)\
-                       .values(password = new_pass)
-    print(update_statement)
-
-    #if (new_pass_safe and new_pass_confirm_safe) and new_pass == new_pass_confirm:
-       
+    bad_pass = False
     
-    return flask.render_template("profile.html", curr_username = curr_username, curr_email = curr_email, curr_password = curr_password)
+    if (new_pass_safe and new_pass_confirm_safe) and (new_pass == new_pass_confirm) and (curr_pass == curr_password):
+        db.session.query(User).filter_by(username=curr_username).update({"password":generate_password_hash(new_pass)})
+        db.session.commit() 
+        return flask.render_template("profile.html", curr_username = curr_username, curr_email = curr_email)
+    else:
+        signup_flash = Markup(
+                "You did not enter your current password properly.<br>Or<br> New password not secure enough.<br>Password must meet the following requirements:<br>1. At least 1 special character:  ~`! @#$%^&*()_-+={[}]|\:;\"'<,>.?/ <br>2. Must contain both uppercase and lowercase letters.<br>3. Must be 8 characters or longer.<br>4. Must contain at least one number 0-9."
+            )
+        return flask.render_template("profile.html", signup_flash = signup_flash,curr_username = curr_username, curr_email = curr_email)
+
+
 
 
 
