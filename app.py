@@ -844,11 +844,6 @@ def changePassword():
             )
         return flask.render_template("profile.html", signup_flash = signup_flash,curr_username = curr_username, curr_email = curr_email)
 
-
-
-
-
-
 if __name__ == "__main__":
     app.run(
         # debug = True
