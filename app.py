@@ -410,6 +410,8 @@ Code for String Squad's HTML:
 @app.route("/home")
 @login_required
 def home():
+    curr_username = User.get_username(current_user)
+
     try:
         curr_instr_name = (
             Instruments.query.filter_by(instr_id=current_user.current_instr_id)
@@ -429,7 +431,7 @@ def home():
         curr_str_name = ""
 
     return flask.render_template(
-        "home.html", curr_instr_name=curr_instr_name, curr_str_name=curr_str_name
+        "home.html", curr_username = curr_username, curr_instr_name=curr_instr_name, curr_str_name=curr_str_name
     )
 
 
